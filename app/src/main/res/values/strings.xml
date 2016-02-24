@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">CallReminder</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="titles_array">
+        <item>HOME</item>
+        <item>Reminders</item>
+        <item>Analyze</item>
+        <item>Help</item>
+    </string-array>
+
+    <array name="navigation_drawer_images">
+        <item>@drawable/ic_home_black_48dp</item>
+        <item>@drawable/ic_alarm_black_48dp</item>
+        <item>@drawable/ic_search_black_48dp</item>
+        <item>@drawable/ic_help_black_48dp</item>
+    </array>
+
+</resources>
