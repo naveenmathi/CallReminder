@@ -3,7 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/callReminder.iml" filepath="$PROJECT_DIR$/callReminder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/call-reminder.iml" filepath="$PROJECT_DIR$/call-reminder.iml" />
     </modules>
   </component>
 </project>
+
