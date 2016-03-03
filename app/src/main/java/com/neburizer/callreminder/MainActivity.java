@@ -21,15 +21,15 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity{
 
     //activity element variables
-    static TextView opText;
+    public static TextView opText;
     Context cxt;
     NumberPicker skipDaysPicker;
     static int skipDays;
 
-    //side drawer
+    //side drawer variables
     private String[] sTitles;
     TypedArray sImages;
     private DrawerLayout sDrawerLayout;
@@ -40,11 +40,25 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setupVariables();
+        setupNavigationDrawer();
+    }
+
+    private void setupVariables() {
         cxt = getApplicationContext();
-        //getActionBar().setIcon(R.drawable.ic_alarm_black_48dp);
-        //side-drawer initialize
-        /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //initialize activity elements to variables
+        /*skipDaysPicker = (NumberPicker) findViewById(R.id.skipDaysPicker);
+        skipDaysPicker.setMinValue(1);
+        skipDaysPicker.setMaxValue(25);
+        skipDaysPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                skipDays = newVal;
+            }
+        });*/
+    }
+
+    private void setupNavigationDrawer() {
         sTitles = getResources().getStringArray(R.array.titles_array);
         sImages = getResources().obtainTypedArray(R.array.navigation_drawer_images);
         sDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -52,18 +66,18 @@ public class MainActivity extends ActionBarActivity {
         sDrawerList.setAdapter(new CustomAdapter(this,sTitles,sImages));
         sDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         sDrawerToggle = new ActionBarDrawerToggle(
-                this,                  *//* host Activity *//*
-                sDrawerLayout,         *//* DrawerLayout object *//*
-                R.string.open_drawer,  *//* "open drawer" description *//*
-                R.string.close_drawer  *//* "close drawer" description *//*
+                this,                  //* host Activity *//*
+                sDrawerLayout,         //* DrawerLayout object *//*
+                R.string.open_drawer,  //* "open drawer" description *//*
+                R.string.close_drawer  //* "close drawer" description *//*
         ) {
-            *//** Called when a drawer has settled in a completely closed state. *//*
+            //** Called when a drawer has settled in a completely closed state. *//*
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 //getActionBar().setTitle(mTitle);
             }
 
-            *//** Called when a drawer has settled in a completely open state. *//*
+            //** Called when a drawer has settled in a completely open state. *//*
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 //getActionBar().setTitle(mDrawerTitle);
@@ -73,21 +87,7 @@ public class MainActivity extends ActionBarActivity {
         ActionBar actionBar;
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);*/
-
-        //initialize activity elements to variables
-        cxt = getApplicationContext();
-        /*opText = (TextView) findViewById(R.id.opText);
-        skipDaysPicker = (NumberPicker) findViewById(R.id.skipDaysPicker);
-        skipDaysPicker.setMinValue(1);
-        skipDaysPicker.setMaxValue(25);
-        skipDaysPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                skipDays = newVal;
-            }
-        });*/
+        actionBar.setHomeButtonEnabled(true);
     }
 
     @Override
@@ -103,8 +103,6 @@ public class MainActivity extends ActionBarActivity {
         sDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-
-
     private class DrawerItemClickListener implements ListView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -113,7 +111,7 @@ public class MainActivity extends ActionBarActivity {
             args.putInt(HelpFragment.fragment_pos,i);
             newF.setArguments(args);
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.setCustomAnimations(R.animator.fade_in,0,0,0);
+            ft.setCustomAnimations(R.animator.fade_in, 0, 0, 0);
             ft.replace(R.id.content_frame,newF).commit();
             sDrawerLayout.closeDrawer(sDrawerList);
             setTitle(sTitles[i]);
@@ -152,15 +150,7 @@ public class MainActivity extends ActionBarActivity {
     int minRepeatCount = 2;
 
     long skipMillis = (long) (skipHours * 60 * 60 * 1000);
-    //MAIN THREAD HANDLER
-    static Handler btnHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            Bundle bundle = msg.getData();
-            String string = bundle.getString(opKey);
-            opText.append(string);
-        }
-    };
+
 
     /**
      * core function for analysing call logs and generates person data
@@ -168,10 +158,9 @@ public class MainActivity extends ActionBarActivity {
     public void analyzeCallLogs(View v) {
         reminderDbHelper.emptyDb();
         AnalyzeCallLogsThread act = new AnalyzeCallLogsThread(cxt,reminderDbHelper);
-        act.run();
-        for(int iR=1; iR< reminderDbHelper.getRowCount(); iR++)
-            opText.append(reminderDbHelper.getRecord(iR));
-
+        act.start();
+        CommonFunctions.showToast(cxt, "Thread started");
+        opText.append("Analysis in progress...");
     }
 
     public void btnInsertCallLogs(View v) {

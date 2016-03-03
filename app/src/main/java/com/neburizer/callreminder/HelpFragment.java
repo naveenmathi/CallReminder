@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 /**
  * Created by nm3 on 2/4/2016.
@@ -22,7 +23,9 @@ public class HelpFragment extends Fragment {
             case 1:
                 return inflater.inflate(R.layout.reminders_fragment,container,false);
             case 2:
-                return inflater.inflate(R.layout.analyze_fragment,container,false);
+                View tempView = inflater.inflate(R.layout.analyze_fragment,container,false);
+                MainActivity.opText = (TextView) tempView.findViewById(R.id.opText);
+                return tempView;
             case 3:
                 return inflater.inflate(R.layout.help_fragment,container,false);
             default:
