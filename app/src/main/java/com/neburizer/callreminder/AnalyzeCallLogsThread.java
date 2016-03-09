@@ -2,6 +2,8 @@ package com.neburizer.callreminder;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
+import android.os.Message;
 import android.provider.CallLog;
 
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ import java.util.Map;
  */
 public class AnalyzeCallLogsThread extends Thread{
     Context cxt;
-    int skipDays = MainActivity.skipDays;
+    int skipDays = 1;//HelpFragment.skipDays;
     float skipHours = 2f;
     int minRepeatCount = 2;
     ArrayList<String> reminderNames;
@@ -34,6 +36,11 @@ public class AnalyzeCallLogsThread extends Thread{
     @Override
     public void run() {
         dowork();
+        Message msg = HelpFragment.publicHandler.obtainMessage();
+        Bundle b = new Bundle();
+        b.putString("typeOfWork","analyzeCallLogs");
+        msg.setData(b);
+        HelpFragment.publicHandler.sendMessage(msg);
     }//run method
 
     private void dowork() {

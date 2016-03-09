@@ -9,7 +9,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/btn_analyze"
         android:text="@string/btn_analyze"
-        android:onClick="analyzeCallLogs"
         android:layout_gravity="center_horizontal" />
     <TextView
         android:id="@+id/opText"

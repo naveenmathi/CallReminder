@@ -23,11 +23,8 @@ import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity{
 
-    //activity element variables
-    public static TextView opText;
-    Context cxt;
-    NumberPicker skipDaysPicker;
-    static int skipDays;
+
+    private Context cxt;
 
     //side drawer variables
     private String[] sTitles;
@@ -43,6 +40,7 @@ public class MainActivity extends ActionBarActivity{
         setupVariables();
         setupNavigationDrawer();
     }
+
 
     private void setupVariables() {
         cxt = getApplicationContext();
@@ -142,37 +140,9 @@ public class MainActivity extends ActionBarActivity{
         return super.onOptionsItemSelected(item);
     }
 
-    //*****************  ^  setup  ^  ************************ v User Code v ********************************************************//
-
-    static String opKey = "opKey";
-    ReminderDatabaseHelper reminderDbHelper = new ReminderDatabaseHelper(this);
-    float skipHours = 2f;
-    int minRepeatCount = 2;
-
-    long skipMillis = (long) (skipHours * 60 * 60 * 1000);
 
 
-    /**
-     * core function for analysing call logs and generates person data
-     */
-    public void analyzeCallLogs(View v) {
-        reminderDbHelper.emptyDb();
-        AnalyzeCallLogsThread act = new AnalyzeCallLogsThread(cxt,reminderDbHelper);
-        act.start();
-        CommonFunctions.showToast(cxt, "Thread started");
-        opText.append("Analysis in progress...");
-    }
 
-    public void btnInsertCallLogs(View v) {
-        CommonFunctions.insertCallLogsFromXml(cxt);
-        CommonFunctions.showToast(cxt, "already inserted");
-    }
 
-    public void btnDeleteCallLogs(View v) {
-        reminderDbHelper.emptyDb();
-        //this.getContentResolver().delete(CallLog.Calls.CONTENT_URI, null, null);
-       // reminderDbHelper.insertDummyRecord();
-
-    }
 
 }
