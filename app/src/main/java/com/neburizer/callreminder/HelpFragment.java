@@ -28,6 +28,13 @@ public class HelpFragment extends Fragment {
     static int skipDays;
     public static Handler publicHandler;
 
+    //analyzer variables
+    static String opKey = "opKey";
+    ReminderDatabaseHelper reminderDbHelper;
+    float skipHours = 2f;
+    int minRepeatCount = 2;
+    long skipMillis = (long) (skipHours * 60 * 60 * 1000);
+
     @Override
     public View onCreateView (LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState){
         switch (getArguments().getInt(fragment_pos)){
@@ -48,9 +55,11 @@ public class HelpFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         cxt = view.getContext();
+        reminderDbHelper = new ReminderDatabaseHelper(cxt);
         setupHandler();
         opText = (TextView) view.findViewById(R.id.opText);
         Button btnAnalyze = (Button) view.findViewById(R.id.btn_analyze);
+        Button btnInsertRecords = (Button) view.findViewById(R.id.btn_insertRecords);
         btnAnalyze.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,29 +71,28 @@ public class HelpFragment extends Fragment {
                 opText.append("Analysis in progress...");
             }
         });
+        btnInsertRecords.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                CommonFunctions.insertCallLogsFromXml(cxt);
+                CommonFunctions.showToast(cxt, "inserting");
+            }
+        });
+
     }
 
-    //analyzer variables
-    static String opKey = "opKey";
-    ReminderDatabaseHelper reminderDbHelper = new ReminderDatabaseHelper(cxt);
-    float skipHours = 2f;
-    int minRepeatCount = 2;
-    long skipMillis = (long) (skipHours * 60 * 60 * 1000);
+
 
     /**
      * core function for analysing call logs and generates person data
      */
 
 
-    public void btnInsertCallLogs(View v) {
-        CommonFunctions.insertCallLogsFromXml(cxt);
-        CommonFunctions.showToast(cxt, "already inserted");
-    }
 
     public void btnDeleteCallLogs(View v) {
         reminderDbHelper.emptyDb();
         //this.getContentResolver().delete(CallLog.Calls.CONTENT_URI, null, null);
-        // reminderDbHelper.insertDummyRecord();
+        //reminderDbHelper.insertDummyRecord();
     }
 
 
@@ -97,6 +105,10 @@ public class HelpFragment extends Fragment {
                 if(typeOfWork=="analyzeCallLogs")
                 {
                     opText.append("DONE");
+                    for(int i=1; i<=reminderDbHelper.getRowCount(); i++)
+                    {
+                        opText.append(reminderDbHelper.getRecord(i));
+                    }
                 }
             }
         };

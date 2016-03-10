@@ -10,6 +10,11 @@
         android:id="@+id/btn_analyze"
         android:text="@string/btn_analyze"
         android:layout_gravity="center_horizontal" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_insertRecords"
+        android:text="InsertRecordsTemp"/>
     <TextView
         android:id="@+id/opText"
         android:text="@string/default_analyze_op"

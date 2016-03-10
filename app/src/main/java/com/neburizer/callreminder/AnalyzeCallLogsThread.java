@@ -7,7 +7,6 @@ import android.os.Message;
 import android.provider.CallLog;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.Map;
  */
 public class AnalyzeCallLogsThread extends Thread{
     Context cxt;
-    int skipDays = 1;//HelpFragment.skipDays;
+    int skipDays = 10;
     float skipHours = 2f;
     int minRepeatCount = 2;
     ArrayList<String> reminderNames;

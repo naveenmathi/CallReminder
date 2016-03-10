@@ -23,7 +23,7 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_NAME_REM_TIME = ReminderDatabaseContract.ReminderEntry.COLUMN_NAME_REM_TIME;
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + TABLE_NAME + " (" +
-                    COLUMN_NAME_ID + " INTEGER PRIMARY KEY," + COMMA_SEP +
+                    COLUMN_NAME_ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
                     COLUMN_NAME_PH_NO + TEXT_TYPE + COMMA_SEP +
                     COLUMN_NAME_REM_TIME + INT_TYPE + " )";
 
@@ -40,7 +40,6 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase argDb) {
         argDb.execSQL(SQL_CREATE_ENTRIES);
-
     }
 
     @Override
@@ -78,7 +77,7 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(sql,null);
         cursor.moveToFirst();
         opBuilder=opBuilder+(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_PH_NO)));
-        opBuilder=opBuilder+("@"+cursor.getInt(cursor.getColumnIndex(COLUMN_NAME_REM_TIME)));
+        opBuilder=opBuilder+("@"+CommonFunctions.longToDate((long)cursor.getInt(cursor.getColumnIndex(COLUMN_NAME_REM_TIME))));
         return opBuilder;
     }
 
