@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.os.Message;
 import android.provider.CallLog;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +51,7 @@ public class AnalyzeCallLogsThread extends Thread{
         int reminderIndex = 0;
         String opMessage="Call Logs: \n";
         //pointer for call logs URI
-        Cursor callLogPointer  = cxt.getContentResolver().query(CallLog.Calls.CONTENT_URI,null,null,null,CallLog.Calls.DATE+" DESC");
+        Cursor callLogPointer  = cxt.getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, CallLog.Calls.DATE + " DESC");
         int number = callLogPointer.getColumnIndex(CallLog.Calls.NUMBER);
         int timeOfCall = callLogPointer.getColumnIndex(CallLog.Calls.DATE);
         if(callLogPointer.getCount()>0) {
@@ -126,8 +128,7 @@ public class AnalyzeCallLogsThread extends Thread{
                                     repeatCount++;
                                     prevDiff = timeDiff;        //for skipping same day logs
                                     if (repeatCount >= minRepeatCount) {
-                                        reminderNames.add(p.getName());
-                                        reminderTimes.add(timeCalled_1);
+                                        reminderDbHelper.insertRecord(p.getName(),roundoffTime(timeCalled_1));
                                         found = 1;
                                         prevDiff = 0;
                                         break;
@@ -142,10 +143,13 @@ public class AnalyzeCallLogsThread extends Thread{
                             break;        //break iteration if repeatCount>minRepeatCount
                     }//[C] - loop through subarray of called list timings starting from i+1
                 }//[B] - loop through all called list timings
-            }//[A] - loop through each phone number
-            for (int i = 0; i < reminderNames.size(); i++) {
-                reminderDbHelper.insertRecord(reminderNames.get(i), reminderTimes.get(i));
-            }
+            }//[A] - loop through each phone numberreminderDbHelper.insertRecord(reminderNames.get(i), reminderTimes.get(i));
         }
+    }
+
+    private Long roundoffTime(Long timeCalled_1) {
+        Date date = new Date(timeCalled_1);
+        SimpleDateFormat df2 = new SimpleDateFormat("hh:mm");
+        return Long.valueOf(df2.format(date)).longValue();
     }
 }

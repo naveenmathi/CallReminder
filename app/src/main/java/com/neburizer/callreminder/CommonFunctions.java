@@ -39,7 +39,7 @@ public class CommonFunctions {
     public static String longToDate(long l) {
         Date date = new Date(l);
         SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-        return df2.format(date);
+        return ("long= "+l+" || date= "+df2.format(date)+"\n");
     }
 
     /**
@@ -50,7 +50,6 @@ public class CommonFunctions {
     public static String longToHours(long l) {
         l = l / (60000);
         return l+" minutes";
-
     }
 
 

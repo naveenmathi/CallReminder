@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class ReminderDatabaseHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "ReminderDatabase.db";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 3;
     private static final String TEXT_TYPE = " TEXT";
     private static final String INT_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
@@ -25,7 +25,7 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + TABLE_NAME + " (" +
                     COLUMN_NAME_ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
                     COLUMN_NAME_PH_NO + TEXT_TYPE + COMMA_SEP +
-                    COLUMN_NAME_REM_TIME + INT_TYPE + " )";
+                    COLUMN_NAME_REM_TIME + TEXT_TYPE + " )";
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -63,7 +63,7 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
         long iDb=getRowCount();
         cValues.put(COLUMN_NAME_ID,++iDb);
         cValues.put(COLUMN_NAME_PH_NO,phNo);
-        cValues.put(COLUMN_NAME_REM_TIME, rTime);
+        cValues.put(COLUMN_NAME_REM_TIME, Long.toString(rTime));
         db.insert(TABLE_NAME,null,cValues);
     }
 
@@ -77,7 +77,7 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(sql,null);
         cursor.moveToFirst();
         opBuilder=opBuilder+(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_PH_NO)));
-        opBuilder=opBuilder+("@"+CommonFunctions.longToDate((long)cursor.getInt(cursor.getColumnIndex(COLUMN_NAME_REM_TIME))));
+        opBuilder=opBuilder+("@"+CommonFunctions.longToDate(Long.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_REM_TIME))).longValue()));
         return opBuilder;
     }
 

@@ -17,6 +17,7 @@
         android:text="InsertRecordsTemp"/>
     <TextView
         android:id="@+id/opText"
+        android:textIsSelectable="true"
         android:text="@string/default_analyze_op"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
