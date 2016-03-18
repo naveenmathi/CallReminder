@@ -18,13 +18,13 @@ import java.util.Date;
 /**
  * Created by nm3 on 2/4/2016.
  */
-public class HelpFragment extends Fragment {
+public class RemindersFragment extends Fragment {
 
     Context cxt;
 
     @Override
     public View onCreateView (LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState){
-        return inflater.inflate(R.layout.help_fragment,container,false);
+        return inflater.inflate(R.layout.reminders_fragment,container,false);
     }
 
     @Override

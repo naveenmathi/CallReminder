@@ -103,16 +103,22 @@ public class MainActivity extends ActionBarActivity{
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener{
         @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            Fragment newF = new HelpFragment();
-            Bundle args = new Bundle();
-            args.putInt(HelpFragment.fragment_pos,i);
-            newF.setArguments(args);
+        public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+            Fragment newF = null;
+            switch (pos)
+            {
+                case 3:
+                    newF = new HelpFragment();
+                    break;
+                case 2:
+                    newF = new AnalyzeFragment();
+                    break;
+            }
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.setCustomAnimations(R.animator.fade_in, 0, 0, 0);
             ft.replace(R.id.content_frame,newF).commit();
             sDrawerLayout.closeDrawer(sDrawerList);
-            setTitle(sTitles[i]);
+            setTitle(sTitles[pos]);
         }
     }
 

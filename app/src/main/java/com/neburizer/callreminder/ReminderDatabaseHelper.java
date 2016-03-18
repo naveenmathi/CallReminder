@@ -7,6 +7,10 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+
 /**
  * Created by nm3 on 1/20/2016.
  */
@@ -63,7 +67,7 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
         long iDb=getRowCount();
         cValues.put(COLUMN_NAME_ID,++iDb);
         cValues.put(COLUMN_NAME_PH_NO,phNo);
-        cValues.put(COLUMN_NAME_REM_TIME, Long.toString(rTime));
+        cValues.put(COLUMN_NAME_REM_TIME, String.valueOf(rTime));
         db.insert(TABLE_NAME,null,cValues);
     }
 
@@ -77,7 +81,8 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(sql,null);
         cursor.moveToFirst();
         opBuilder=opBuilder+(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_PH_NO)));
-        opBuilder=opBuilder+("@"+CommonFunctions.longToDate(Long.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_REM_TIME))).longValue()));
+        String remTime = CommonFunctions.longToTime(Long.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_REM_TIME))));
+        opBuilder=opBuilder+("@"+remTime);
         return opBuilder;
     }
 

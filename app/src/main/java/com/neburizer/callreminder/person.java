@@ -34,7 +34,7 @@ public class person {
     public ArrayList<Long> getCalledList() {
         return calledList;
     }
-    public void addCall(Long timeOfCall) {
+    public void addCall(long timeOfCall) {
         calledList.add(timeOfCall);
     }
 

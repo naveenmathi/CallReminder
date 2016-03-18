@@ -29,19 +29,19 @@ public class AnalyzeCallLogsThread extends Thread{
     ReminderDatabaseHelper reminderDbHelper;
 
     //contructor
-    public AnalyzeCallLogsThread(Context c,ReminderDatabaseHelper reminderDbHelperArgs)
+    public AnalyzeCallLogsThread(Context c)
     {
         cxt = c;
-        reminderDbHelper = reminderDbHelperArgs;
+        reminderDbHelper = new ReminderDatabaseHelper(cxt);
     }
     @Override
     public void run() {
         dowork();
-        Message msg = HelpFragment.publicHandler.obtainMessage();
+        Message msg = AnalyzeFragment.publicHandler.obtainMessage();
         Bundle b = new Bundle();
         b.putString("typeOfWork","analyzeCallLogs");
         msg.setData(b);
-        HelpFragment.publicHandler.sendMessage(msg);
+        AnalyzeFragment.publicHandler.sendMessage(msg);
     }//run method
 
     private void dowork() {
@@ -59,7 +59,8 @@ public class AnalyzeCallLogsThread extends Thread{
             HashMap<String, person> hmPersons = new HashMap<String, person>();
             while (callLogPointer.moveToNext()) {
                 String c_number = CommonFunctions.returnValidPhNo(callLogPointer.getString(number));
-                Long c_time = new Long(callLogPointer.getString(timeOfCall));
+                String ttt = callLogPointer.getString(timeOfCall);
+                long c_time = Long.valueOf(ttt);
                 if (!hmPersons.containsKey(c_number)) {
                     person p = new person(c_number);
                     p.addCall(c_time);
@@ -111,14 +112,14 @@ public class AnalyzeCallLogsThread extends Thread{
                 }
                 //[B] - loop through all called list timings
                 for (i = 0; i < calledArray.length; i++) {
-                    Long timeCalled_1 = calledArray[i];
+                    long timeCalled_1 = calledArray[i];
                     int repeatCount = 0;
                     long prevDiff = 0;
 
                     //[C] - loop through subarray of called list timings starting from i+1
                     for (int j = i + 1; j < calledArray.length; j++) {
-                        Long timeCalled_2 = calledArray[j];
-                        Long timeDiff = timeCalled_1 - timeCalled_2;
+                        long timeCalled_2 = calledArray[j];
+                        long timeDiff = timeCalled_1 - timeCalled_2;
                         int found = 0;
 
                         //[D] - loop for validating each skip day
@@ -128,7 +129,7 @@ public class AnalyzeCallLogsThread extends Thread{
                                     repeatCount++;
                                     prevDiff = timeDiff;        //for skipping same day logs
                                     if (repeatCount >= minRepeatCount) {
-                                        reminderDbHelper.insertRecord(p.getName(),roundoffTime(timeCalled_1));
+                                        reminderDbHelper.insertRecord(p.getName(),CommonFunctions.roundTime(timeCalled_1));
                                         found = 1;
                                         prevDiff = 0;
                                         break;
@@ -147,9 +148,5 @@ public class AnalyzeCallLogsThread extends Thread{
         }
     }
 
-    private Long roundoffTime(Long timeCalled_1) {
-        Date date = new Date(timeCalled_1);
-        SimpleDateFormat df2 = new SimpleDateFormat("hh:mm");
-        return Long.valueOf(df2.format(date)).longValue();
-    }
+
 }

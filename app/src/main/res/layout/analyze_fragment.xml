@@ -13,8 +13,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btn_insertRecords"
-        android:text="InsertRecordsTemp"/>
+        android:id="@+id/btn_temp"
+        android:text="Temp"/>
     <TextView
         android:id="@+id/opText"
         android:textIsSelectable="true"

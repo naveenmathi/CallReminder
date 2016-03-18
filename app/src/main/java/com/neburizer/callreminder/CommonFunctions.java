@@ -37,9 +37,9 @@ public class CommonFunctions {
      * @return
      */
     public static String longToDate(long l) {
-        Date date = new Date(l);
+        Date d = new Date(l);
         SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-        return ("long= "+l+" || date= "+df2.format(date)+"\n");
+        return (df2.format(d));
     }
 
     /**
@@ -47,9 +47,10 @@ public class CommonFunctions {
      * @param l -> Date value in long
      * @return
      */
-    public static String longToHours(long l) {
-        l = l / (60000);
-        return l+" minutes";
+    public static String longToTime(long l) {
+        Date d = new Date(l);
+        SimpleDateFormat df2 = new SimpleDateFormat("hh:mm a");
+        return (df2.format(d));
     }
 
 
@@ -72,6 +73,7 @@ public class CommonFunctions {
     public static void insertCallLogsFromXml(Context cxt)
     {
         showToast(cxt,"Calling insertCallLogsFromXml");
+        clearCallLogs(cxt);
         BufferedReader reader=null;
         try {
             reader = new BufferedReader(new InputStreamReader(cxt.getAssets().open("callLog2.csv")));
@@ -137,5 +139,15 @@ public class CommonFunctions {
         cxt.getContentResolver().insert(CallLog.Calls.CONTENT_URI, values);
     }
 
+    private static void clearCallLogs(Context cxt) {
+        cxt.getContentResolver().delete(CallLog.Calls.CONTENT_URI, null, null);
+    }
 
+    /**
+     * @param timeCalled_1
+     * @return only time of the day from the date provided
+     */
+    public static long roundTime(long timeCalled_1) {
+        return timeCalled_1 % 86400000; //1 day in milli seconds
+    }
 }
