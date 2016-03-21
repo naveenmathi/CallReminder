@@ -5,21 +5,16 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.NumberPicker;
-import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity{
 
@@ -107,11 +102,17 @@ public class MainActivity extends ActionBarActivity{
             Fragment newF = null;
             switch (pos)
             {
-                case 3:
+                case 0:
                     newF = new HelpFragment();
+                    break;
+                case 1:
+                    newF = new RemindersFragment();
                     break;
                 case 2:
                     newF = new AnalyzeFragment();
+                    break;
+                case 3:
+                    newF = new HelpFragment();
                     break;
             }
             FragmentTransaction ft = getFragmentManager().beginTransaction();
