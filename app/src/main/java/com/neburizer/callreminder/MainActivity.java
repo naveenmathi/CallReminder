@@ -10,11 +10,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity{
 
@@ -28,6 +33,7 @@ public class MainActivity extends ActionBarActivity{
     private ListView sDrawerList;
     private ActionBarDrawerToggle sDrawerToggle;
 
+    //***************************Default Activity functions*****************************//
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +41,45 @@ public class MainActivity extends ActionBarActivity{
         setupVariables();
         setupNavigationDrawer();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+    //***************************Default Activity functions*****************************//
+
+    //***************************Extra Activity functions for toggle bar*****************************//
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        sDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        sDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (sDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    //***************************Extra Activity functions for toggle bar*****************************//
 
 
     private void setupVariables() {
@@ -51,12 +96,13 @@ public class MainActivity extends ActionBarActivity{
         });*/
     }
 
+    //***************************Navigation drawer code*****************************//
     private void setupNavigationDrawer() {
         sTitles = getResources().getStringArray(R.array.titles_array);
         sImages = getResources().obtainTypedArray(R.array.navigation_drawer_images);
         sDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         sDrawerList = (ListView) findViewById(R.id.left_drawer);
-        sDrawerList.setAdapter(new CustomAdapter(this,sTitles,sImages));
+        sDrawerList.setAdapter(new NavigationBarAdapter(this,sTitles,sImages));
         sDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         sDrawerToggle = new ActionBarDrawerToggle(
                 this,                  //* host Activity *//*
@@ -83,19 +129,9 @@ public class MainActivity extends ActionBarActivity{
         actionBar.setHomeButtonEnabled(true);
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        sDrawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        sDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
+    /**
+     * Click listener for navigation drawer
+     */
     private class DrawerItemClickListener implements ListView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
@@ -123,33 +159,56 @@ public class MainActivity extends ActionBarActivity{
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    /**
+     * Adapter class for initialising navigation bar
+     */
+    private class NavigationBarAdapter extends BaseAdapter {
+        String[] txt_list;
+        TypedArray imageId;
+        private LayoutInflater inflater = null;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (sDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        public NavigationBarAdapter(Context c, String[] txt_list, TypedArray img_list) {
+            // TODO Auto-generated constructor stub
+            this.txt_list = txt_list;
+            imageId = img_list;
+            inflater = (LayoutInflater) c.
+                    getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
-        return super.onOptionsItemSelected(item);
+
+        @Override
+        public int getCount() {
+            return txt_list.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        public class Holder {
+            TextView tv;
+            ImageView img;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            Holder holder = new Holder();
+            View rowView;
+            rowView = inflater.inflate(R.layout.drawer_list_item, null);
+            holder.tv = (TextView) rowView.findViewById(R.id.textView1);
+            holder.img = (ImageView) rowView.findViewById(R.id.imageView1);
+            holder.tv.setText(txt_list[position]);
+            holder.img.setImageResource(imageId.getResourceId(position, -1));
+            return rowView;
+        }
     }
 
-
-
-
-
+    //***************************Navigation drawer code*****************************//
 
 }

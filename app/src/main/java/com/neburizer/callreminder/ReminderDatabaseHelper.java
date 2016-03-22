@@ -7,9 +7,6 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-
 
 /**
  * Created by nm3 on 1/20/2016.
@@ -21,10 +18,10 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
     private static final String TEXT_TYPE = " TEXT";
     private static final String INT_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
-    private static final String TABLE_NAME = ReminderDatabaseContract.ReminderEntry.TABLE_NAME;
-    public static final String COLUMN_NAME_ID = ReminderDatabaseContract.ReminderEntry.COLUMN_NAME_ID;
-    public static final String COLUMN_NAME_PH_NO = ReminderDatabaseContract.ReminderEntry.COLUMN_NAME_PH_NO;
-    public static final String COLUMN_NAME_REM_TIME = ReminderDatabaseContract.ReminderEntry.COLUMN_NAME_REM_TIME;
+    public static final String TABLE_NAME = "reminders";
+    public static final String COLUMN_NAME_ID = "rowId";
+    public static final String COLUMN_NAME_PH_NO = "phNo";
+    public static final String COLUMN_NAME_REM_TIME = "remTime";
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + TABLE_NAME + " (" +
                     COLUMN_NAME_ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
@@ -37,7 +34,7 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
     SQLiteDatabase db;
 
     public ReminderDatabaseHelper(Context context) {
-        super(context,DATABASE_NAME,null,DATABASE_VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
     }
 
@@ -65,25 +62,26 @@ public class ReminderDatabaseHelper extends SQLiteOpenHelper {
         db = this.getWritableDatabase();
         ContentValues cValues = new ContentValues();
         long iDb=getRowCount();
-        cValues.put(COLUMN_NAME_ID,++iDb);
-        cValues.put(COLUMN_NAME_PH_NO,phNo);
+        cValues.put(COLUMN_NAME_ID, ++iDb);
+        cValues.put(COLUMN_NAME_PH_NO, phNo);
         cValues.put(COLUMN_NAME_REM_TIME, String.valueOf(rTime));
-        db.insert(TABLE_NAME,null,cValues);
+        db.insert(TABLE_NAME, null, cValues);
     }
 
-    public String getRecord(int id)
+    public Cursor getRecord(int id)
     {
         db = this.getReadableDatabase();
-        String opBuilder = "Result: ";
         String sql = "select * from "+
                 TABLE_NAME+
                 " where "+COLUMN_NAME_ID+"='"+id+"';";
-        Cursor cursor = db.rawQuery(sql,null);
-        cursor.moveToFirst();
-        opBuilder=opBuilder+(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_PH_NO)));
-        String remTime = CommonFunctions.longToTime(Long.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_REM_TIME))));
-        opBuilder=opBuilder+("@"+remTime);
-        return opBuilder;
+        return db.rawQuery(sql,null);
+    }
+
+    public Cursor getAllRecords()
+    {
+        db = this.getReadableDatabase();
+        String sql = "select * from " + TABLE_NAME + ";";
+        return db.rawQuery(sql,null);
     }
 
     public boolean emptyDb()

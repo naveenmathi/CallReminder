@@ -2,7 +2,9 @@ package com.neburizer.callreminder;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -13,6 +15,10 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 /**
@@ -37,6 +43,7 @@ public class AnalyzeFragment extends Fragment {
     int minRepeatCount = 2;
     long skipMillis = (long) (skipHours * 60 * 60 * 1000);
 
+    //**********************************Default Fragment functions*********************************//
     @Override
     public View onCreateView (LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState){
         return inflater.inflate(R.layout.analyze_fragment,container,false);
@@ -65,7 +72,25 @@ public class AnalyzeFragment extends Fragment {
         btnTemp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonFunctions.insertCallLogsFromXml(cxt);
+                AssetManager asm = cxt.getAssets();
+                try {
+                    InputStream ins = asm.open("testContact.jpg");
+                    String out= Environment.getExternalStorageDirectory().getAbsolutePath() + "/tempfolder" ;
+                    File outFile = new File(out,"testImage");
+                    OutputStream ost = new FileOutputStream(outFile);
+                    byte[] buffer = new byte[1024];
+                    int read;
+                    while((read = ins.read(buffer)) != -1){
+                        ost.write(buffer, 0, read);
+                    }
+                    ins.close();
+                    ins=null;
+                    ost.flush();
+                    ost.close();
+                    ost = null;
+
+                }catch (Exception e){}
+                //CommonFunctions.insertCallLogsFromXml(cxt);
                 /*Date d = new Date();
                 reminderDbHelper.insertRecord("9789827780",d.getTime());
                 CommonFunctions.showToast(cxt, "inserting dummy");
@@ -79,12 +104,7 @@ public class AnalyzeFragment extends Fragment {
 
     }
 
-
-
-    /**
-     * core function for analysing call logs and generates person data
-     */
-
+    //**********************************Default Fragment functions*********************************//
 
 
     public void btnDeleteCallLogs(View v) {
@@ -102,12 +122,7 @@ public class AnalyzeFragment extends Fragment {
                 String typeOfWork = tempB.getString("typeOfWork");
                 if(typeOfWork=="analyzeCallLogs")
                 {
-
                     opText.append("DONE");
-                    for(int i=1; i<=reminderDbHelper.getRowCount(); i++)
-                    {
-                        opText.append(reminderDbHelper.getRecord(i));
-                    }
                 }
             }
         };
