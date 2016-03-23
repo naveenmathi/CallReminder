@@ -1,11 +1,15 @@
 package com.neburizer.callreminder;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,59 +26,73 @@ import android.widget.TextView;
  */
 public class RemindersFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
-    int DETAILS_QUERY_ID = 0;
 
     //**************************************Default fragment functions*******************************//
+    ListView reminderListView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
     public View onCreateView (LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState){
-        View v = inflater.inflate(R.layout.reminders_fragment,container,false); //entire reminder fragment view
-        ListView lv = (ListView) v.findViewById(R.id.reminderListView); //holds the reminder list
-        lv.setAdapter(new ReminderListItemAdapter(v.getContext())); //adapter for listing reminder items
-        return v;
+        return inflater.inflate(R.layout.reminders_fragment,container,false); //entire reminder fragment view
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        // Initializes the loader
+        getLoaderManager().initLoader(0, null, this);
+
+        //set reminder list adapter
+        reminderListView = (ListView) view.findViewById(R.id.reminderListView);
+        reminderListView.setAdapter(new ReminderListItemAdapter(view.getContext()));
+
+        //temp button
         Button btTemp = (Button)view.findViewById(R.id.temp2);
         btTemp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateView((ListView) v.findViewById(R.id.reminderListView),2);
+                //updateView(lv,1);
             }
         });
     }
 
     //***********************************Loader Manager functions*****************************//
+
+
+    Cursor contactsCursor = null;
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
+        return new CursorLoader(getActivity(), ContactsContract.Contacts.CONTENT_URI,
+                null,null,null,null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+        contactsCursor = data;
+        //refresh list numbers with contact names
+        updateReminderListWithContactNames();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        contactsCursor = null;
     }
 
     //************************************Other functions********************************
-    private void updateView(ListView reminderListView,int index){
-        View v = reminderListView.getChildAt(index -
-                reminderListView.getFirstVisiblePosition());
-
-        if(v == null)
-            return;
-
-        TextView someText = (TextView) v.findViewById(R.id.reminderListItemContactName);
-        someText.setText("Hi! I updated you manually!");
+    private void updateReminderListWithContactNames(){
+        for(int i=0; i<reminderListView.getChildCount(); i++)
+        {
+            View v = reminderListView.getChildAt(i);
+            if(v == null)
+                return;
+            TextView numTxt = (TextView) v.findViewById(R.id.reminderListItemContactName);
+            contactsCursor.moveToFirst();
+            numTxt.setText(contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
+        }
     }
 
 
