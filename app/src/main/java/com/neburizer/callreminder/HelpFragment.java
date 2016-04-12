@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
+import android.telephony.PhoneNumberUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,12 +41,14 @@ public class HelpFragment extends Fragment {
         op = (TextView) view.findViewById(R.id.textViewHelp);
         String SELECTION =  ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER + " LIKE ?";
         Cursor c1 = view.getContext().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                null,SELECTION,new String[]{"%9789827780"},null);
+                null,null,null,null);//new String[]{"%9487"}
         c1.moveToFirst();
-        op.append("\n" + c1.getString(c1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER)));
-        while(c1.moveToNext())
+        do
         {
-            op.append("\n"+c1.getString(c1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER)));
-        }
+            try{
+                op.append("\n"+c1.getString(c1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                op.append("/"+c1.getString(c1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
+            }catch (Exception e){}
+        }while(c1.moveToNext());
     }
 }

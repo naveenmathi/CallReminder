@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
+import android.telephony.PhoneNumberUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -45,8 +50,8 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         reminderListView = (ListView) view.findViewById(R.id.reminderListView);
         reminderListView.setAdapter(new ReminderListItemAdapter(view.getContext()));
 
-        //refresh list numbers with contact names
-        updateReminderListWithContactNames();
+        //start contacts loader
+        getLoaderManager().initLoader(0,null,this);
 
         //temp button
         Button btTemp = (Button)view.findViewById(R.id.temp2);
@@ -60,27 +65,36 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
 
     //***********************************Loader Manager functions*****************************//
 
-
-
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String numVal = args.getString(bundleArgNumber);
-        String SELECTION =  ContactsContract.CommonDataKinds.Phone.NUMBER + "= ?";
-        return new CursorLoader(getActivity(), ContactsContract.Contacts.CONTENT_URI,
-                null,SELECTION,new String[]{numVal},null);
+        //get all contacts
+        return new CursorLoader(getActivity(), ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        int i = loader.getId();
-        data.moveToFirst();
-        View v = reminderListView.getChildAt(i);
-        if(v != null) {
-            TextView numTxt = (TextView) v.findViewById(R.id.reminderListItemContactName);
-            numTxt.setText(data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
+        //convert cursor to hashmap
+        HashMap<String,String> m = new HashMap<String,String>();
+        if(!(data == null)){
+            data.moveToFirst();
+            do {
+                String normNum = "";
+                String dispName = "";
+                try {
+                    normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                    normNum = normNum.replaceAll("[^0-9]","");
+                    dispName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                }catch (Exception e){}
+                finally {
+                    m.put(normNum,dispName);
+                    CommonFunctions.showToast(this.getActivity().getApplicationContext(),normNum);
+                }
+            }while(data.moveToNext());
         }
+        //refresh list numbers with contact names and pic
+        updateReminderListWithContactNames(m);
     }
+
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -88,15 +102,14 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     //************************************Other functions********************************
-    private void updateReminderListWithContactNames(){
+    private void updateReminderListWithContactNames(HashMap<String,String> m){
         for(int i=0; i<reminderListView.getChildCount(); i++) {
             View v = reminderListView.getChildAt(i);
             if(v != null) {
                 TextView numTxt = (TextView) v.findViewById(R.id.reminderListItemContactName);
-                String numVal = (String) numTxt.getText();
-                Bundle args = new Bundle();
-                args.putString(bundleArgNumber,numVal);
-                getLoaderManager().initLoader(i, args, this);
+                String temp = (String) numTxt.getText();
+                temp = temp.substring(temp.length()-10,temp.length());
+                numTxt.setText(m.get(temp));
             }
         }
     }
