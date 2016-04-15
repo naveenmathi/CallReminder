@@ -6,11 +6,9 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
-import android.telephony.PhoneNumberUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,14 +77,14 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
             data.moveToFirst();
             do {
                 String normNum = "";
-                String dispName = "";
+                String contactID = "";
                 try {
                     normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                     normNum = normNum.replaceAll("[^0-9]","");
-                    dispName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    contactID = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
                 }catch (Exception e){}
                 finally {
-                    m.put(normNum,dispName);
+                    m.put(normNum,contactID);
                     CommonFunctions.showToast(this.getActivity().getApplicationContext(),normNum);
                 }
             }while(data.moveToNext());
