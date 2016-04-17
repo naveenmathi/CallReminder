@@ -6,9 +6,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.provider.CallLog;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,13 +24,13 @@ public class AnalyzeCallLogsThread extends Thread{
     ArrayList<Long> reminderTimes;
     String opKey = "opKey";
     long skipMillis = (long)(skipHours * 60 * 60 * 1000);
-    ReminderDatabaseHelper reminderDbHelper;
+    DatabaseHelper reminderDbHelper;
 
     //contructor
     public AnalyzeCallLogsThread(Context c)
     {
         cxt = c;
-        reminderDbHelper = new ReminderDatabaseHelper(cxt);
+        reminderDbHelper = MainActivity.rdh;
     }
     @Override
     public void run() {
@@ -129,7 +127,7 @@ public class AnalyzeCallLogsThread extends Thread{
                                     repeatCount++;
                                     prevDiff = timeDiff;        //for skipping same day logs
                                     if (repeatCount >= minRepeatCount) {
-                                        reminderDbHelper.insertRecord(p.getName(),CommonFunctions.roundTime(timeCalled_1));
+                                        reminderDbHelper.createReminderRecord(p.getName(),CommonFunctions.roundTime(timeCalled_1));
                                         found = 1;
                                         prevDiff = 0;
                                         break;

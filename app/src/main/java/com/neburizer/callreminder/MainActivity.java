@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +34,9 @@ public class MainActivity extends ActionBarActivity{
     private ListView sDrawerList;
     private ActionBarDrawerToggle sDrawerToggle;
 
+    //Databases
+    public static DatabaseHelper rdh;
+
     //***************************Default Activity functions*****************************//
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,7 @@ public class MainActivity extends ActionBarActivity{
         setContentView(R.layout.activity_main);
         setupVariables();
         setupNavigationDrawer();
+        Log.v("test log","pass");
     }
 
     @Override
@@ -84,6 +89,7 @@ public class MainActivity extends ActionBarActivity{
 
     private void setupVariables() {
         cxt = getApplicationContext();
+        rdh = new DatabaseHelper(this);
         //initialize activity elements to variables
         /*skipDaysPicker = (NumberPicker) findViewById(R.id.skipDaysPicker);
         skipDaysPicker.setMinValue(1);

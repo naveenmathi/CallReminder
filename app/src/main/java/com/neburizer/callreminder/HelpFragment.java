@@ -39,7 +39,7 @@ public class HelpFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         cxt = view.getContext();
         op = (TextView) view.findViewById(R.id.textViewHelp);
-        String SELECTION =  ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER + " LIKE ?";
+        //String SELECTION =  ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER + " LIKE ?";
         Cursor c1 = view.getContext().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 null,null,null,null);//new String[]{"%9487"}
         c1.moveToFirst();

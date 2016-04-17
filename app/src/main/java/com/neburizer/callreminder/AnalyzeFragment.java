@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
 
 /**
  * Created by nm3 on 2/4/2016.
@@ -38,7 +37,7 @@ public class AnalyzeFragment extends Fragment {
 
     //analyzer variables
     static String opKey = "opKey";
-    ReminderDatabaseHelper reminderDbHelper;
+    DatabaseHelper reminderDbHelper;
     float skipHours = 2f;
     int minRepeatCount = 2;
     long skipMillis = (long) (skipHours * 60 * 60 * 1000);
@@ -53,7 +52,7 @@ public class AnalyzeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         cxt = view.getContext();
-        reminderDbHelper = new ReminderDatabaseHelper(cxt);
+        reminderDbHelper = new DatabaseHelper(cxt);
         setupHandler();
         opText = (TextView) view.findViewById(R.id.opText);
         Button btnAnalyze = (Button) view.findViewById(R.id.btn_analyze);
@@ -61,7 +60,7 @@ public class AnalyzeFragment extends Fragment {
         btnAnalyze.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reminderDbHelper.emptyDb();
+                reminderDbHelper.emptyDb(ReminderTableContract.TABLE_NAME);
                 AnalyzeCallLogsThread act = new AnalyzeCallLogsThread(cxt);
                 act.setDaemon(true);
                 act.start();
@@ -108,7 +107,7 @@ public class AnalyzeFragment extends Fragment {
 
 
     public void btnDeleteCallLogs(View v) {
-        reminderDbHelper.emptyDb();
+        reminderDbHelper.emptyDb(ReminderTableContract.TABLE_NAME);
         //this.getContentResolver().delete(CallLog.Calls.CONTENT_URI, null, null);
         //reminderDbHelper.insertDummyRecord();
     }

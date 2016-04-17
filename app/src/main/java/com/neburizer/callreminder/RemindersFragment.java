@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
@@ -18,8 +20,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -71,26 +74,28 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        //convert cursor to hashmap
-        HashMap<String,String> m = new HashMap<String,String>();
+        //store in database contactsTable
+
+        MainActivity.rdh.emptyDb(ContactsTableContract.TABLE_NAME);
+
         if(!(data == null)){
             data.moveToFirst();
             do {
                 String normNum = "";
-                String contactID = "";
+                String contactName = "";
+                String contactImgResId = "";
                 try {
                     normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                     normNum = normNum.replaceAll("[^0-9]","");
-                    contactID = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+                    normNum = normNum.substring(normNum.length()-10,normNum.length());
+                    contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    contactImgResId = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
+                    MainActivity.rdh.createContactsRecord(normNum,contactName,contactImgResId);
                 }catch (Exception e){}
-                finally {
-                    m.put(normNum,contactID);
-                    CommonFunctions.showToast(this.getActivity().getApplicationContext(),normNum);
-                }
             }while(data.moveToNext());
         }
         //refresh list numbers with contact names and pic
-        updateReminderListWithContactNames(m);
+        updateReminderListWithContactNames();
     }
 
 
@@ -100,14 +105,18 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     //************************************Other functions********************************
-    private void updateReminderListWithContactNames(HashMap<String,String> m){
+    private void updateReminderListWithContactNames(){
         for(int i=0; i<reminderListView.getChildCount(); i++) {
             View v = reminderListView.getChildAt(i);
             if(v != null) {
                 TextView numTxt = (TextView) v.findViewById(R.id.reminderListItemContactName);
-                String temp = (String) numTxt.getText();
-                temp = temp.substring(temp.length()-10,temp.length());
-                numTxt.setText(m.get(temp));
+                ImageView contactImg = (ImageView) v.findViewById(R.id.reminderListItemContactImage);
+                Cursor contactCursor = MainActivity.rdh.getContactsRecord((String)numTxt.getText());
+                try {
+                    contactCursor.moveToFirst();
+                    numTxt.setText(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_NAME)));
+                    contactImg.setImageURI(Uri.parse(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES))));
+                }catch (Exception c){}
             }
         }
     }
@@ -121,19 +130,19 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
     private class ReminderListItemAdapter extends BaseAdapter{
 
         Context cxt;
-        ReminderDatabaseHelper reminderDatabaseHelper=null;
+        DatabaseHelper reminderDatabaseHelper=null;
 
 
         //constructor
         public ReminderListItemAdapter(Context c){
             cxt = c;
-            reminderDatabaseHelper = new ReminderDatabaseHelper(cxt);
+            reminderDatabaseHelper = new DatabaseHelper(cxt);
         }
 
         //***********************************Base Adapter functions*****************************//
         @Override
         public int getCount() {
-            return (int) reminderDatabaseHelper.getRowCount();
+            return (int) reminderDatabaseHelper.getRowCount(ReminderTableContract.TABLE_NAME);
         }
 
         @Override
@@ -154,12 +163,12 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
             h.reminderTime = (TextView) rowView.findViewById(R.id.reminderListItemTime);
             h.contactName = (TextView) rowView.findViewById(R.id.reminderListItemContactName);
             h.contactIcon = (ImageView) rowView.findViewById(R.id.reminderListItemContactImage);
-            Cursor rdbCursor = reminderDatabaseHelper.getAllRecords();
+            Cursor rdbCursor = reminderDatabaseHelper.getAllRecords(ReminderTableContract.TABLE_NAME);
             rdbCursor.moveToPosition(position);
             String callTime = "Next Call Time: " +
-                    CommonFunctions.longToTime(rdbCursor.getInt(rdbCursor.getColumnIndex(ReminderDatabaseHelper.COLUMN_NAME_REM_TIME)));
+                    CommonFunctions.longToTime(rdbCursor.getInt(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME)));
             h.reminderTime.setText(callTime);
-            h.contactName.setText(rdbCursor.getString(rdbCursor.getColumnIndex(ReminderDatabaseHelper.COLUMN_NAME_PH_NO)));
+            h.contactName.setText(rdbCursor.getString(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO)));
             h.contactIcon.setImageResource(R.drawable.ic_alarm_black_48dp);
             return rowView;
         }
