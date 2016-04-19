@@ -28,7 +28,7 @@ import java.util.HashMap;
 /**
  * Created by nm3 on 2/4/2016.
  */
-public class RemindersFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class RemindersFragment extends Fragment{
 
 
     //**************************************Default fragment functions*******************************//
@@ -51,9 +51,6 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         reminderListView = (ListView) view.findViewById(R.id.reminderListView);
         reminderListView.setAdapter(new ReminderListItemAdapter(view.getContext()));
 
-        //start contacts loader
-        getLoaderManager().initLoader(0,null,this);
-
         //temp button
         Button btTemp = (Button)view.findViewById(R.id.temp2);
         btTemp.setOnClickListener(new View.OnClickListener() {
@@ -64,70 +61,12 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         });
     }
 
-    //***********************************Loader Manager functions*****************************//
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        //get all contacts
-        return new CursorLoader(getActivity(), ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        //store in database contactsTable
-
-        MainActivity.rdh.emptyDb(ContactsTableContract.TABLE_NAME);
-
-        if(!(data == null)){
-            data.moveToFirst();
-            do {
-                String normNum = "";
-                String contactName = "";
-                String contactImgResId = "";
-                try {
-                    normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-                    normNum = normNum.replaceAll("[^0-9]","");
-                    normNum = normNum.substring(normNum.length()-10,normNum.length());
-                    contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    contactImgResId = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
-                    MainActivity.rdh.createContactsRecord(normNum,contactName,contactImgResId);
-                }catch (Exception e){}
-            }while(data.moveToNext());
-        }
-        //refresh list numbers with contact names and pic
-        updateReminderListWithContactNames();
-    }
-
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    //************************************Other functions********************************
-    private void updateReminderListWithContactNames(){
-        for(int i=0; i<reminderListView.getChildCount(); i++) {
-            View v = reminderListView.getChildAt(i);
-            if(v != null) {
-                TextView numTxt = (TextView) v.findViewById(R.id.reminderListItemContactName);
-                ImageView contactImg = (ImageView) v.findViewById(R.id.reminderListItemContactImage);
-                Cursor contactCursor = MainActivity.rdh.getContactsRecord((String)numTxt.getText());
-                try {
-                    contactCursor.moveToFirst();
-                    numTxt.setText(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_NAME)));
-                    contactImg.setImageURI(Uri.parse(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES))));
-                }catch (Exception c){}
-            }
-        }
-    }
-
-
 
     //**************************************ReminderList adapter class*******************************//
     /**
      * Loader manager is used for background loading of contacts
      */
-    private class ReminderListItemAdapter extends BaseAdapter{
+    private class ReminderListItemAdapter extends BaseAdapter implements LoaderManager.LoaderCallbacks<Cursor>{
 
         Context cxt;
         DatabaseHelper reminderDatabaseHelper=null;
@@ -168,9 +107,62 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
             String callTime = "Next Call Time: " +
                     CommonFunctions.longToTime(rdbCursor.getInt(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME)));
             h.reminderTime.setText(callTime);
-            h.contactName.setText(rdbCursor.getString(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO)));
+            String numTxt = rdbCursor.getString(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
+            h.contactName.setText(numTxt);
             h.contactIcon.setImageResource(R.drawable.ic_alarm_black_48dp);
+
+            //update with contact names
+
+            if(MainActivity.rdh.getRowCount(ContactsTableContract.TABLE_NAME) < 1) {
+                getLoaderManager().initLoader(0, null, this);
+            }
+
+            Cursor contactCursor = MainActivity.rdh.getContactsRecord(numTxt);
+            try {
+                contactCursor.moveToFirst();
+                h.contactName.setText(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_NAME)));
+                h.contactIcon.setImageURI(Uri.parse(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES))));
+            }catch (Exception c){}
+
             return rowView;
+        }
+
+        //***********************************Loader Manager functions*****************************//
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            //get all contacts
+            return new CursorLoader(getActivity(), ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            //store in database contactsTable
+
+            MainActivity.rdh.emptyDb(ContactsTableContract.TABLE_NAME);
+
+            if(!(data == null)){
+                data.moveToFirst();
+                do {
+                    String normNum = "";
+                    String contactName = "";
+                    String contactImgResId = "";
+                    try {
+                        normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                        normNum = normNum.replaceAll("[^0-9]","");
+                        normNum = normNum.substring(normNum.length()-10,normNum.length());
+                        contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                        contactImgResId = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
+                        MainActivity.rdh.createContactsRecord(normNum,contactName,contactImgResId);
+                    }catch (Exception e){}
+                }while(data.moveToNext());
+            }
+        }
+
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+
         }
 
         //***********************************Other functions*****************************//
