@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
@@ -51,12 +52,13 @@ public class RemindersFragment extends Fragment{
         reminderListView = (ListView) view.findViewById(R.id.reminderListView);
         reminderListView.setAdapter(new ReminderListItemAdapter(view.getContext()));
 
-        //temp button
-        Button btTemp = (Button)view.findViewById(R.id.temp2);
-        btTemp.setOnClickListener(new View.OnClickListener() {
+        //start reminder button
+        Button btnStartReminder = (Button)view.findViewById(R.id.btnStartReminder);
+        btnStartReminder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //updateView(lv,1);
+                Intent reminderServiceIntent = new Intent(getActivity(), CallReminderService.class);
+                getActivity().startService(reminderServiceIntent);
             }
         });
     }

@@ -26,6 +26,13 @@
         </activity>
         <!--starting activity-->
 
+        <!--reminder background service-->
+        <service
+            android:name=".CallReminderService"
+            android:exported="false"
+        />
+        <!--reminder background service-->
+
     </application>
 
 </manifest>
