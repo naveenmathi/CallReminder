@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class AnalyzeCallLogsThread extends Thread{
     Context cxt;
-    int skipDays = 1;
+    int skipDays = 10;
     float skipHours = 2f;
     int minRepeatCount = 2;
     ArrayList<String> reminderNames;

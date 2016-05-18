@@ -1,9 +1,11 @@
 package com.neburizer.callreminder;
 
 import android.app.Fragment;
+import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.provider.CallLog;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,7 +22,7 @@ public class CommonFunctions {
 
 
     static int durationToast = Toast.LENGTH_SHORT;
-
+    static int notificationID = 1;
     /**
      * Common Toast function
      * @param context
@@ -29,6 +31,27 @@ public class CommonFunctions {
     public static void showToast(Context context, String message)
     {
         Toast.makeText(context, message, durationToast).show();
+    }
+
+    /**
+     *
+     * Simple status bar notification
+     * @param cxt Context from which notification manager can be called
+     * @param msg Content text for notification
+     * @param title Title of status bar notification
+     * @param icon Left side icon for status bar notification
+     * @return returns the notification ID for update purposes
+     */
+    public static int pushNotification(Context cxt,String title,String msg,int icon)
+    {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(cxt);
+        mBuilder.setSmallIcon(icon);
+        mBuilder.setContentTitle(title);
+        mBuilder.setContentText(msg);
+        NotificationManager mNotificationManager = (NotificationManager) cxt.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(notificationID, mBuilder.build());
+        notificationID++;
+        return (notificationID-1);
     }
 
     /**
