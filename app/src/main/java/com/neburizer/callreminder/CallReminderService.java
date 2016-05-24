@@ -27,8 +27,9 @@ public class CallReminderService extends IntentService {
         DatabaseHelper dbh = MainActivity.rdh;
         Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
         c.moveToFirst();
-        
-        String temp = c.getString(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
-        CommonFunctions.pushNotification(this,"testTitle2",temp,R.drawable.ic_alarm_black_48dp);
+        String timeOfAlarm = c.getString(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME));
+
+        int temp = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID));
+        CommonFunctions.pushCallRemindNotification(this,temp);
     }
 }

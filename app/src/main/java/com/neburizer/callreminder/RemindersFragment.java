@@ -1,13 +1,14 @@
 package com.neburizer.callreminder;
 
+import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Calendar;
 import java.util.HashMap;
 
 
@@ -57,8 +59,22 @@ public class RemindersFragment extends Fragment{
         btnStartReminder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent reminderServiceIntent = new Intent(getActivity(), CallReminderService.class);
-                getActivity().startService(reminderServiceIntent);
+                /*Intent reminderServiceIntent = new Intent(getActivity(), CallReminderService.class);
+                getActivity().startService(reminderServiceIntent);*/
+                Context cxt = v.getContext();
+                AlarmManager alarmMgr;
+                PendingIntent alarmIntent;
+                alarmMgr = (AlarmManager)cxt.getSystemService(Context.ALARM_SERVICE);
+                //Intent intent = new Intent(cxt, AlarmReceiver.class);
+                //alarmIntent = PendingIntent.getBroadcast(cxt, 0, intent, 0);
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                calendar.set(Calendar.HOUR_OF_DAY,19);
+                calendar.set(Calendar.MINUTE,5);
+
+                alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                        1000 * 60 * 20, null);
             }
         });
     }

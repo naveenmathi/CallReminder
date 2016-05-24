@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.provider.CallLog;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -34,19 +35,20 @@ public class CommonFunctions {
     }
 
     /**
-     *
      * Simple status bar notification
      * @param cxt Context from which notification manager can be called
-     * @param msg Content text for notification
-     * @param title Title of status bar notification
-     * @param icon Left side icon for status bar notification
+     * @param reminderId
      * @return returns the notification ID for update purposes
      */
-    public static int pushNotification(Context cxt,String title,String msg,int icon)
+    public static int pushCallRemindNotification(Context cxt,int reminderId)
     {
+        DatabaseHelper dbh = MainActivity.rdh;
+        Cursor c = dbh.getReminderRecord(reminderId);
+        c.moveToFirst();
+        String msg = c.getString(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(cxt);
-        mBuilder.setSmallIcon(icon);
-        mBuilder.setContentTitle(title);
+        //mBuilder.setSmallIcon(icon);
+        //mBuilder.setContentTitle(title);
         mBuilder.setContentText(msg);
         NotificationManager mNotificationManager = (NotificationManager) cxt.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(notificationID, mBuilder.build());
