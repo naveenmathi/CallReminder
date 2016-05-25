@@ -54,27 +54,34 @@ public class RemindersFragment extends Fragment{
         reminderListView = (ListView) view.findViewById(R.id.reminderListView);
         reminderListView.setAdapter(new ReminderListItemAdapter(view.getContext()));
 
-        //start reminder button
+        //**************************************Start Reminder - button function*******************************//
         Button btnStartReminder = (Button)view.findViewById(R.id.btnStartReminder);
+        /**
+         * This function starts a set of reminders (repeating alarm managers)
+         */
         btnStartReminder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Intent reminderServiceIntent = new Intent(getActivity(), CallReminderService.class);
-                getActivity().startService(reminderServiceIntent);*/
                 Context cxt = v.getContext();
                 AlarmManager alarmMgr;
-                PendingIntent alarmIntent;
+                PendingIntent pendingIntent;
                 alarmMgr = (AlarmManager)cxt.getSystemService(Context.ALARM_SERVICE);
-                //Intent intent = new Intent(cxt, AlarmReceiver.class);
-                //alarmIntent = PendingIntent.getBroadcast(cxt, 0, intent, 0);
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.set(Calendar.HOUR_OF_DAY,19);
-                calendar.set(Calendar.MINUTE,5);
 
-                alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                        1000 * 60 * 20, null);
+                Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
+                DatabaseHelper dbh = MainActivity.rdh;
+                Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
+                c.moveToFirst();
+                do {
+                    notificationIntent.putExtra
+                            (ReminderTableContract.COLUMN_NAME_ID, c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID)));
+                    pendingIntent = PendingIntent.getBroadcast(cxt,0,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+                    alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                            1000 * 5, pendingIntent);
+                }while (c.moveToNext());
+
             }
         });
     }
@@ -145,6 +152,15 @@ public class RemindersFragment extends Fragment{
             return rowView;
         }
 
+        /**
+         * Holder class for reminder item
+         */
+        public class Holder {
+            TextView contactName;
+            ImageView contactIcon;
+            TextView reminderTime;
+        }
+
         //***********************************Loader Manager functions*****************************//
 
         @Override
@@ -183,15 +199,7 @@ public class RemindersFragment extends Fragment{
 
         }
 
-        //***********************************Other functions*****************************//
-        public class Holder {
-            TextView contactName;
-            ImageView contactIcon;
-            TextView reminderTime;
-        }
-        /*public static Bitmap retrieveContactPhoto(Context context, String number) {
 
-        }*/
     }
     //**************************************ReminderList adapter class*******************************//
 }

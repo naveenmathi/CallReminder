@@ -33,6 +33,7 @@
         />
         <!--reminder background service-->
 
+        <receiver android:name=".NotificationReceiver"/>
     </application>
 
 </manifest>
