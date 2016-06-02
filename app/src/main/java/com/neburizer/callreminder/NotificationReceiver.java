@@ -12,6 +12,6 @@ public class NotificationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         int reminderId = intent.getIntExtra(ReminderTableContract.COLUMN_NAME_ID,0);
         CommonFunctions.pushCallRemindNotification(context,reminderId);
-        //CommonFunctions.showToast(context,"toast from BR");
+        //CommonFunctions.showToast(context,"toast from BR = "+reminderId);
     }
 }

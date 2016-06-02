@@ -22,10 +22,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -37,6 +36,8 @@ public class RemindersFragment extends Fragment{
     //**************************************Default fragment functions*******************************//
     ListView reminderListView;
     String bundleArgNumber  =   "phNumber";
+    ArrayList<PendingIntent> registeredAlarms;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,43 +48,76 @@ public class RemindersFragment extends Fragment{
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         //set reminder list adapter
         reminderListView = (ListView) view.findViewById(R.id.reminderListView);
         reminderListView.setAdapter(new ReminderListItemAdapter(view.getContext()));
 
+        //set pendingAlarmIntents array
+        registeredAlarms = new ArrayList<PendingIntent>();
         //**************************************Start Reminder - button function*******************************//
         Button btnStartReminder = (Button)view.findViewById(R.id.btnStartReminder);
         /**
          * This function starts a set of reminders (repeating alarm managers)
          */
         btnStartReminder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick (View v){
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(4000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Context cxt = view.getContext();
+                            AlarmManager alarmMgr;
+                            PendingIntent pendingIntent;
+                            alarmMgr = (AlarmManager) cxt.getSystemService(Context.ALARM_SERVICE);
+
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTimeInMillis(System.currentTimeMillis());
+
+                            Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
+                            DatabaseHelper dbh = MainActivity.rdh;
+                            Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
+                            c.moveToFirst();
+                            do {
+                                notificationIntent.putExtra
+                                        (ReminderTableContract.COLUMN_NAME_ID, c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID)));
+                                pendingIntent = PendingIntent.getBroadcast(cxt, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                registeredAlarms.add(pendingIntent);
+                                alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                                        1000 * 5, pendingIntent);
+                            } while (c.moveToNext());
+                        }
+                    }).start();
+                }
+        });
+
+        //**************************************Start Reminder - button function*******************************//
+        Button btnStopReminder = (Button)view.findViewById(R.id.btnStopReminder);
+        /**
+         * This function starts a set of reminders (repeating alarm managers)
+         */
+        btnStopReminder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Context cxt = v.getContext();
+                Context cxt = view.getContext();
                 AlarmManager alarmMgr;
                 PendingIntent pendingIntent;
                 alarmMgr = (AlarmManager)cxt.getSystemService(Context.ALARM_SERVICE);
-
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-
-                Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
-                DatabaseHelper dbh = MainActivity.rdh;
-                Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
-                c.moveToFirst();
-                do {
-                    notificationIntent.putExtra
-                            (ReminderTableContract.COLUMN_NAME_ID, c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID)));
-                    pendingIntent = PendingIntent.getBroadcast(cxt,0,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-                    alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                            1000 * 5, pendingIntent);
-                }while (c.moveToNext());
-
+                for (PendingIntent p:registeredAlarms)
+                {
+                    alarmMgr.cancel(p);
+                    //registeredAlarms.remove(p);
+                }
             }
         });
+
     }
 
 

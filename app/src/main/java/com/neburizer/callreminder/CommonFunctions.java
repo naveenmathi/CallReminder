@@ -47,9 +47,10 @@ public class CommonFunctions {
         c.moveToFirst();
         String msg = c.getString(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(cxt);
-        //mBuilder.setSmallIcon(icon);
-        //mBuilder.setContentTitle(title);
+        mBuilder.setSmallIcon(R.drawable.ic_alarm_black_48dp);
+        mBuilder.setContentTitle("title tst");
         mBuilder.setContentText(msg);
+        CommonFunctions.showToast(cxt,msg);
         NotificationManager mNotificationManager = (NotificationManager) cxt.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(notificationID, mBuilder.build());
         notificationID++;
