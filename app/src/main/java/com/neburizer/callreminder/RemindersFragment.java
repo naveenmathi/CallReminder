@@ -90,15 +90,17 @@ public class RemindersFragment extends Fragment{
                                         (ReminderTableContract.COLUMN_NAME_ID, c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID)));
                                 pendingIntent = PendingIntent.getBroadcast(cxt, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                                 registeredAlarms.add(pendingIntent);
-                                alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                                        1000 * 5, pendingIntent);
+                                for(PendingIntent pI:registeredAlarms){
+                                    calendar.setTimeInMillis(c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME)));
+                                    alarmMgr.setInexactRepeating(AlarmManager.RTC,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pI);
+                                }
                             } while (c.moveToNext());
                         }
                     }).start();
                 }
         });
 
-        //**************************************Start Reminder - button function*******************************//
+        //**************************************Stop Reminder - button function*******************************//
         Button btnStopReminder = (Button)view.findViewById(R.id.btnStopReminder);
         /**
          * This function starts a set of reminders (repeating alarm managers)

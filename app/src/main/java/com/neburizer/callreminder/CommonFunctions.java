@@ -79,8 +79,6 @@ public class CommonFunctions {
         return (df2.format(d));
     }
 
-
-
     /**
      * returns only last 10 chars of given string(valid phone number)
      * @param phNo - input string phonen number(any length)
@@ -174,6 +172,8 @@ public class CommonFunctions {
      * @return only time of the day from the date provided
      */
     public static long roundTime(long timeCalled_1) {
+        //long temp = 34200000;
+        //return temp;
         return timeCalled_1 % 86400000; //1 day in milli seconds
     }
 }
