@@ -50,7 +50,7 @@ public class GenericLib {
         mBuilder.setSmallIcon(R.drawable.ic_alarm_black_48dp);
         mBuilder.setContentTitle("title tst");
         mBuilder.setContentText(msg);
-        GenericLib.showToast(cxt,msg);
+        //GenericLib.showToast(cxt,msg);
         NotificationManager mNotificationManager = (NotificationManager) cxt.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(notificationID, mBuilder.build());
         notificationID++;

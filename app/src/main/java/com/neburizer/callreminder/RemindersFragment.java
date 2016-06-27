@@ -59,6 +59,7 @@ public class RemindersFragment extends Fragment{
 
         //set pendingAlarmIntents array
         registeredAlarms = new ArrayList<PendingIntent>();
+
         //**************************************Start Reminder - button function*******************************//
         Button btnStartReminder = (Button)view.findViewById(R.id.btnStartReminder);
         /**
@@ -72,23 +73,27 @@ public class RemindersFragment extends Fragment{
                         public void run() {
                             Context cxt = view.getContext();
                             AlarmManager alarmMgr;
-                            PendingIntent pendingIntent;
                             alarmMgr = (AlarmManager) cxt.getSystemService(Context.ALARM_SERVICE);
-
-                            Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
                             DatabaseHelper dbh = MainActivity.rdh;
                             Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
                             c.moveToFirst();
                             do {
+                                Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
+                                int uniqueID = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID));
                                 notificationIntent.putExtra
-                                        (ReminderTableContract.COLUMN_NAME_ID, c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID)));
-                                pendingIntent = PendingIntent.getBroadcast(cxt, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                        (ReminderTableContract.COLUMN_NAME_ID, uniqueID);
+                                PendingIntent pendingIntent = PendingIntent.getBroadcast(cxt,uniqueID , notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                                 registeredAlarms.add(pendingIntent);
                                 int alarmTime = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME));
                                 Calendar systemCal = Calendar.getInstance();
-                                systemCal.add(Calendar.SECOND,6);
-                                alarmMgr.setInexactRepeating(AlarmManager.RTC, systemCal.getTimeInMillis(),
-                                        AlarmManager.INTERVAL_DAY, pendingIntent);
+                                Calendar alarmCal = Calendar.getInstance();
+                                alarmCal.setTimeInMillis(alarmTime);
+                                systemCal.set(Calendar.HOUR_OF_DAY,alarmCal.get(Calendar.HOUR_OF_DAY));
+                                systemCal.set(Calendar.MINUTE,alarmCal.get(Calendar.MINUTE));
+                                systemCal.set(Calendar.SECOND,alarmCal.get(Calendar.SECOND));
+                                //systemCal.add(Calendar.SECOND,5);
+                                //alarmMgr.setRepeating(AlarmManager.RTC,System.currentTimeMillis(),5000,pendingIntent);
+                                alarmMgr.setInexactRepeating(AlarmManager.RTC, systemCal.getTimeInMillis(),AlarmManager.INTERVAL_DAY, pendingIntent);
                             } while (c.moveToNext());
                         }
                     }).start();
@@ -103,14 +108,15 @@ public class RemindersFragment extends Fragment{
         btnStopReminder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Context cxt = view.getContext();
-                AlarmManager alarmMgr;
-                PendingIntent pendingIntent;
-                alarmMgr = (AlarmManager)cxt.getSystemService(Context.ALARM_SERVICE);
-                for (PendingIntent p:registeredAlarms)
-                {
-                    alarmMgr.cancel(p);
-                    //registeredAlarms.remove(p);
+                if(registeredAlarms.size()>0) {
+                    Context cxt = view.getContext();
+                    AlarmManager alarmMgr;
+                    PendingIntent pendingIntent;
+                    alarmMgr = (AlarmManager) cxt.getSystemService(Context.ALARM_SERVICE);
+                    for (PendingIntent p : registeredAlarms) {
+                        alarmMgr.cancel(p);
+                    }
+                    registeredAlarms = new ArrayList<PendingIntent>();
                 }
             }
         });
