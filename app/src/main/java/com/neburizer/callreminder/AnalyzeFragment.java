@@ -2,9 +2,7 @@ package com.neburizer.callreminder;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -14,11 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Created by nm3 on 2/4/2016.
@@ -64,14 +57,14 @@ public class AnalyzeFragment extends Fragment {
                 AnalyzeCallLogsThread act = new AnalyzeCallLogsThread(cxt);
                 act.setDaemon(true);
                 act.start();
-                CommonFunctions.showToast(cxt, "Thread started");
+                GenericLib.showToast(cxt, "Thread started");
                 opText.append("Analysis in progress...");
             }
         });
         btnTemp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AssetManager asm = cxt.getAssets();
+                /*AssetManager asm = cxt.getAssets();
                 try {
                     InputStream ins = asm.open("testContact.jpg");
                     String out= Environment.getExternalStorageDirectory().getAbsolutePath() + "/tempfolder" ;
@@ -88,11 +81,11 @@ public class AnalyzeFragment extends Fragment {
                     ost.close();
                     ost = null;
 
-                }catch (Exception e){}
-                //CommonFunctions.insertCallLogsFromXml(cxt);
+                }catch (Exception e){}*/
+                GenericLib.insertCallLogsFromXml(cxt);
                 /*Date d = new Date();
                 reminderDbHelper.insertRecord("9789827780",d.getTime());
-                CommonFunctions.showToast(cxt, "inserting dummy");
+                GenericLib.showToast(cxt, "inserting dummy");
                 Message msg = publicHandler.obtainMessage();
                 Bundle b = new Bundle();
                 b.putString("typeOfWork","analyzeCallLogs");

@@ -30,6 +30,6 @@ public class CallReminderService extends IntentService {
         String timeOfAlarm = c.getString(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME));
 
         int temp = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID));
-        CommonFunctions.pushCallRemindNotification(this,temp);
+        GenericLib.pushCallRemindNotification(this,temp);
     }
 }

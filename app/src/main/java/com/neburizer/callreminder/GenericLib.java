@@ -1,6 +1,5 @@
 package com.neburizer.callreminder;
 
-import android.app.Fragment;
 import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,12 +13,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
  * Created by nm3 on 1/4/2016.
  */
-public class CommonFunctions {
+public class GenericLib {
 
 
     static int durationToast = Toast.LENGTH_SHORT;
@@ -50,7 +50,7 @@ public class CommonFunctions {
         mBuilder.setSmallIcon(R.drawable.ic_alarm_black_48dp);
         mBuilder.setContentTitle("title tst");
         mBuilder.setContentText(msg);
-        CommonFunctions.showToast(cxt,msg);
+        GenericLib.showToast(cxt,msg);
         NotificationManager mNotificationManager = (NotificationManager) cxt.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(notificationID, mBuilder.build());
         notificationID++;
@@ -78,6 +78,7 @@ public class CommonFunctions {
         SimpleDateFormat df2 = new SimpleDateFormat("hh:mm a");
         return (df2.format(d));
     }
+
 
     /**
      * returns only last 10 chars of given string(valid phone number)
@@ -172,8 +173,6 @@ public class CommonFunctions {
      * @return only time of the day from the date provided
      */
     public static long roundTime(long timeCalled_1) {
-        //long temp = 34200000;
-        //return temp;
         return timeCalled_1 % 86400000; //1 day in milli seconds
     }
 }

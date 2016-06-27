@@ -22,9 +22,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Date;
 
 
 /**
@@ -68,18 +70,10 @@ public class RemindersFragment extends Fragment{
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            try {
-                                Thread.sleep(4000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
                             Context cxt = view.getContext();
                             AlarmManager alarmMgr;
                             PendingIntent pendingIntent;
                             alarmMgr = (AlarmManager) cxt.getSystemService(Context.ALARM_SERVICE);
-
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTimeInMillis(System.currentTimeMillis());
 
                             Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
                             DatabaseHelper dbh = MainActivity.rdh;
@@ -90,10 +84,11 @@ public class RemindersFragment extends Fragment{
                                         (ReminderTableContract.COLUMN_NAME_ID, c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID)));
                                 pendingIntent = PendingIntent.getBroadcast(cxt, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                                 registeredAlarms.add(pendingIntent);
-                                for(PendingIntent pI:registeredAlarms){
-                                    calendar.setTimeInMillis(c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME)));
-                                    alarmMgr.setInexactRepeating(AlarmManager.RTC,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pI);
-                                }
+                                int alarmTime = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME));
+                                Calendar systemCal = Calendar.getInstance();
+                                systemCal.add(Calendar.SECOND,6);
+                                alarmMgr.setInexactRepeating(AlarmManager.RTC, systemCal.getTimeInMillis(),
+                                        AlarmManager.INTERVAL_DAY, pendingIntent);
                             } while (c.moveToNext());
                         }
                     }).start();
@@ -166,7 +161,7 @@ public class RemindersFragment extends Fragment{
             Cursor rdbCursor = reminderDatabaseHelper.getAllRecords(ReminderTableContract.TABLE_NAME);
             rdbCursor.moveToPosition(position);
             String callTime = "Next Call Time: " +
-                    CommonFunctions.longToTime(rdbCursor.getInt(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME)));
+                    GenericLib.longToTime(rdbCursor.getInt(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME)));
             h.reminderTime.setText(callTime);
             String numTxt = rdbCursor.getString(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
             h.contactName.setText(numTxt);

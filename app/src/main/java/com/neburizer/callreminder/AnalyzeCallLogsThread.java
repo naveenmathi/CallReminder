@@ -17,8 +17,8 @@ import java.util.Map;
  */
 public class AnalyzeCallLogsThread extends Thread{
     Context cxt;
-    int skipDays = 10;
-    float skipHours = 2f;
+    int skipDays = 2;
+    float skipHours = 4f;
     int minRepeatCount = 2;
     ArrayList<String> reminderNames;
     ArrayList<Long> reminderTimes;
@@ -56,7 +56,7 @@ public class AnalyzeCallLogsThread extends Thread{
             //generate hash map of persons
             HashMap<String, person> hmPersons = new HashMap<String, person>();
             while (callLogPointer.moveToNext()) {
-                String c_number = CommonFunctions.returnValidPhNo(callLogPointer.getString(number));
+                String c_number = GenericLib.returnValidPhNo(callLogPointer.getString(number));
                 String ttt = callLogPointer.getString(timeOfCall);
                 long c_time = Long.valueOf(ttt);
                 if (!hmPersons.containsKey(c_number)) {
@@ -85,7 +85,7 @@ public class AnalyzeCallLogsThread extends Thread{
                 st.addAll(p.getCalledList());
                 while(!st.isEmpty())
                 {
-                    opMessage+=("\n->"+CommonFunctions.longToDate(st.pop()));
+                    opMessage+=("\n->"+GenericLib.longToDate(st.pop()));
                 }
             }
             sendMsg(opMessage);}
@@ -127,7 +127,7 @@ public class AnalyzeCallLogsThread extends Thread{
                                     repeatCount++;
                                     prevDiff = timeDiff;        //for skipping same day logs
                                     if (repeatCount >= minRepeatCount) {
-                                        reminderDbHelper.createReminderRecord(p.getName(),CommonFunctions.roundTime(timeCalled_1));
+                                        reminderDbHelper.createReminderRecord(p.getName(), GenericLib.roundTime(timeCalled_1));
                                         found = 1;
                                         prevDiff = 0;
                                         break;
