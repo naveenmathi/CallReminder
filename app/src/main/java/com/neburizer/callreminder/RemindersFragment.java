@@ -88,11 +88,10 @@ public class RemindersFragment extends Fragment{
                                 Calendar systemCal = Calendar.getInstance();
                                 Calendar alarmCal = Calendar.getInstance();
                                 alarmCal.setTimeInMillis(alarmTime);
-                                systemCal.set(Calendar.HOUR_OF_DAY,alarmCal.get(Calendar.HOUR_OF_DAY));
-                                systemCal.set(Calendar.MINUTE,alarmCal.get(Calendar.MINUTE));
-                                systemCal.set(Calendar.SECOND,alarmCal.get(Calendar.SECOND));
-                                //systemCal.add(Calendar.SECOND,5);
-                                //alarmMgr.setRepeating(AlarmManager.RTC,System.currentTimeMillis(),5000,pendingIntent);
+                                //systemCal.set(Calendar.HOUR_OF_DAY,alarmCal.get(Calendar.HOUR_OF_DAY));
+                                //systemCal.set(Calendar.MINUTE,alarmCal.get(Calendar.MINUTE));
+                                //systemCal.set(Calendar.SECOND,alarmCal.get(Calendar.SECOND));
+                                systemCal.add(Calendar.SECOND,1);
                                 alarmMgr.setInexactRepeating(AlarmManager.RTC, systemCal.getTimeInMillis(),AlarmManager.INTERVAL_DAY, pendingIntent);
                             } while (c.moveToNext());
                         }
