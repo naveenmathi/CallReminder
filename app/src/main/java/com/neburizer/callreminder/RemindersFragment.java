@@ -9,6 +9,8 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -80,8 +82,7 @@ public class RemindersFragment extends Fragment{
                             do {
                                 Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
                                 int uniqueID = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID));
-                                notificationIntent.putExtra
-                                        (ReminderTableContract.COLUMN_NAME_ID, uniqueID);
+                                notificationIntent.putExtra(ReminderTableContract.COLUMN_NAME_ID, uniqueID);
                                 PendingIntent pendingIntent = PendingIntent.getBroadcast(cxt,uniqueID , notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                                 registeredAlarms.add(pendingIntent);
                                 int alarmTime = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME));
@@ -182,7 +183,9 @@ public class RemindersFragment extends Fragment{
             try {
                 contactCursor.moveToFirst();
                 h.contactName.setText(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_NAME)));
-                h.contactIcon.setImageURI(Uri.parse(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES))));
+                byte temp[] = contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES));
+                Bitmap conImg = BitmapFactory.decodeByteArray(temp, 0, temp.length);
+                h.contactIcon.setImageBitmap(conImg);
             }catch (Exception c){}
 
             return rowView;
@@ -216,14 +219,14 @@ public class RemindersFragment extends Fragment{
                 do {
                     String normNum = "";
                     String contactName = "";
-                    String contactImgResId = "";
+                    byte[] contactImg = null;
                     try {
                         normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                         normNum = normNum.replaceAll("[^0-9]","");
                         normNum = normNum.substring(normNum.length()-10,normNum.length());
                         contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                        contactImgResId = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
-                        MainActivity.rdh.createContactsRecord(normNum,contactName,contactImgResId);
+                        contactImg  = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
+                        MainActivity.rdh.createContactsRecord(normNum,contactName,contactImg);
                     }catch (Exception e){}
                 }while(data.moveToNext());
             }

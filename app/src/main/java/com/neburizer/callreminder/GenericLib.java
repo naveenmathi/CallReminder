@@ -4,13 +4,18 @@ import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.provider.CallLog;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -40,14 +45,19 @@ public class GenericLib {
      * @param reminderId
      * @return returns the notification ID for update purposes
      */
-    public static int pushCallRemindNotification(Context cxt,int reminderId)
-    {
+    public static int pushCallRemindNotification(Context cxt,int reminderId) throws FileNotFoundException {
+        //Get data for notification
         DatabaseHelper dbh = MainActivity.rdh;
         Cursor c = dbh.getReminderRecord(reminderId);
         c.moveToFirst();
         String msg = c.getString(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
+        Cursor contactCursor = MainActivity.rdh.getContactsRecord(msg);
+        contactCursor.moveToFirst();
+
+
+        //Notification Builder
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(cxt);
-        mBuilder.setSmallIcon(R.drawable.ic_alarm_black_48dp);
+        //mBuilder.setSmallIcon(contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES)));
         mBuilder.setContentTitle("title tst");
         mBuilder.setContentText(msg);
         //GenericLib.showToast(cxt,msg);

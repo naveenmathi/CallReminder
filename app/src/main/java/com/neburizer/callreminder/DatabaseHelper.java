@@ -18,6 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     private static final String TEXT_TYPE = " TEXT";
     private static final String INT_PRIMARY = " INTEGER PRIMARY KEY";
+    private static final String BLOB_TYPE = " BLOB";
     private static final String COMMA_SEP = ",";
 
     //create table sql queries
@@ -30,7 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "CREATE TABLE "+ ContactsTableContract.TABLE_NAME + " ("+
                     ContactsTableContract.COLUMN_CONTACT_NUMBER + INT_PRIMARY + COMMA_SEP +
                     ContactsTableContract.COLUMN_CONTACT_NAME + TEXT_TYPE + COMMA_SEP +
-                    ContactsTableContract.COLUMN_CONTACT_IMG_RES + TEXT_TYPE + " )";
+                    ContactsTableContract.COLUMN_CONTACT_IMG_RES + BLOB_TYPE + " )";
 
     //delete tables queries
     private static final String SQL_DELETE_ENTRIES1 = "DROP TABLE IF EXISTS " + ReminderTableContract.TABLE_NAME;
@@ -85,6 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cValues.put(ReminderTableContract.COLUMN_NAME_ID, ++iDb);
         cValues.put(ReminderTableContract.COLUMN_NAME_PH_NO, phNo);
         cValues.put(ReminderTableContract.COLUMN_NAME_REM_TIME, String.valueOf(rTime));
+        //cValues.put(ReminderTableContract.COLUMN_NAME_IMG, );
         db.insert(ReminderTableContract.TABLE_NAME, null, cValues);
     }
 
@@ -92,9 +94,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * specific function to contacts table to create new record
      * @param conNum - phone number of contact
      * @param conName - display name of contact
-     * @param conImgResId - display image's resource id of contact in string format
+     * @param conImgResId - display image's byte array of contact in string format
      */
-    public void createContactsRecord(String conNum, String conName, String conImgResId){
+    public void createContactsRecord(String conNum, String conName, byte[] conImgResId){
         db = this.getReadableDatabase();
         ContentValues cValues = new ContentValues();
         cValues.put(ContactsTableContract.COLUMN_CONTACT_NUMBER, conNum);

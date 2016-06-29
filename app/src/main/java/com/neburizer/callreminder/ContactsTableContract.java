@@ -13,5 +13,4 @@ public class ContactsTableContract implements BaseColumns{
     public static final String COLUMN_CONTACT_NUMBER = "contactNumber";
     public static final String COLUMN_CONTACT_NAME = "contactName";
     public static final String COLUMN_CONTACT_IMG_RES = "contactImgRes";
-
 }

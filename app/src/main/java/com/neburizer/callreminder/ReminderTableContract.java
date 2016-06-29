@@ -13,5 +13,5 @@ public class ReminderTableContract implements BaseColumns{
     public static final String COLUMN_NAME_ID = "rowId";
     public static final String COLUMN_NAME_PH_NO = "phNo";
     public static final String COLUMN_NAME_REM_TIME = "remTime";
-;
+
 }
