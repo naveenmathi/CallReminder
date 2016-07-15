@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +41,7 @@ public class RemindersFragment extends Fragment{
     //**************************************Default fragment functions*******************************//
     ListView reminderListView;
     String bundleArgNumber  =   "phNumber";
-    ArrayList<PendingIntent> registeredAlarms;
+    static ArrayList<PendingIntent> registeredAlarms;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,17 +84,16 @@ public class RemindersFragment extends Fragment{
                                 Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
                                 int uniqueID = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID));
                                 notificationIntent.putExtra(ReminderTableContract.COLUMN_NAME_ID, uniqueID);
-                                PendingIntent pendingIntent = PendingIntent.getBroadcast(cxt,uniqueID , notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                PendingIntent pendingIntent = PendingIntent.getBroadcast(cxt,(200+uniqueID) , notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
                                 registeredAlarms.add(pendingIntent);
                                 int alarmTime = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME));
                                 Calendar systemCal = Calendar.getInstance();
-                                Calendar alarmCal = Calendar.getInstance();
+                                Calendar alarmCal = Calendar.getInstance();   //original code
                                 alarmCal.setTimeInMillis(alarmTime);
-                                //systemCal.set(Calendar.HOUR_OF_DAY,alarmCal.get(Calendar.HOUR_OF_DAY));
-                                //systemCal.set(Calendar.MINUTE,alarmCal.get(Calendar.MINUTE));
-                                //systemCal.set(Calendar.SECOND,alarmCal.get(Calendar.SECOND));
-                                systemCal.add(Calendar.SECOND,1);
-                                alarmMgr.setInexactRepeating(AlarmManager.RTC, systemCal.getTimeInMillis(),AlarmManager.INTERVAL_DAY, pendingIntent);
+                                systemCal.set(Calendar.HOUR_OF_DAY,alarmCal.get(Calendar.HOUR_OF_DAY));
+                                systemCal.set(Calendar.MINUTE,alarmCal.get(Calendar.MINUTE));
+                                systemCal.set(Calendar.SECOND,alarmCal.get(Calendar.SECOND));
+                                alarmMgr.set(AlarmManager.RTC_WAKEUP, systemCal.getTimeInMillis(), pendingIntent);
                             } while (c.moveToNext());
                         }
                     }).start();

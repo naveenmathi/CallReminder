@@ -27,7 +27,7 @@
         </activity>
         <!--starting activity-->
 
-        <receiver android:name=".NotificationReceiver"/>
+        <receiver android:name="NotificationReceiver"/>
     </application>
 
 </manifest>

@@ -45,7 +45,7 @@ public class GenericLib {
      * @param reminderId
      * @return returns the notification ID for update purposes
      */
-    public static int pushCallRemindNotification(Context cxt,int reminderId) throws FileNotFoundException {
+    public static int pushCallRemindNotification(Context cxt,int reminderId){
         //Get data for notification
         DatabaseHelper dbh = MainActivity.rdh;
         Cursor c = dbh.getReminderRecord(reminderId);
@@ -58,8 +58,10 @@ public class GenericLib {
         //Notification Builder
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(cxt);
         //mBuilder.setSmallIcon(contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES)));
+        mBuilder.setSmallIcon(R.drawable.ic_alarm_black_48dp);
         mBuilder.setContentTitle("title tst");
         mBuilder.setContentText(msg);
+        //mBuilder.setContentText("msg");
         //GenericLib.showToast(cxt,msg);
         NotificationManager mNotificationManager = (NotificationManager) cxt.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(notificationID, mBuilder.build());
