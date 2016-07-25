@@ -21,13 +21,13 @@ public class NotificationReceiver extends BroadcastReceiver {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        GenericLib.showToast(context,"toast from BR = "+reminderId);
+        //GenericLib.showToast(context,"toast from BR = "+reminderId);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         //Intent notificationIntent = new Intent(context, NotificationReceiver.class);
         //notificationIntent.putExtra(ReminderTableContract.COLUMN_NAME_ID, reminderId);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,(200+reminderId) , intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar sysCal = Calendar.getInstance();
-        sysCal.add(Calendar.HOUR,24);
+        sysCal.add(Calendar.SECOND,10);
         alarmManager.set(AlarmManager.RTC_WAKEUP, sysCal.getTimeInMillis(), pendingIntent);
     }
 }
