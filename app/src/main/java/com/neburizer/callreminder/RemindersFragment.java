@@ -42,7 +42,8 @@ public class RemindersFragment extends Fragment{
     ListView reminderListView;
     String bundleArgNumber  =   "phNumber";
     static ArrayList<PendingIntent> registeredAlarms;
-
+    Intent callReminderSerivceIntent;
+    public static String startReminder = "startReminder";
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,29 +75,10 @@ public class RemindersFragment extends Fragment{
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            Context cxt = view.getContext();
-                            AlarmManager alarmMgr;
-                            alarmMgr = (AlarmManager) cxt.getSystemService(Context.ALARM_SERVICE);
-                            DatabaseHelper dbh = MainActivity.rdh;
-                            Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
-                            //c.moveToFirst();
-                            while(c.moveToNext()) {
-                                Intent notificationIntent = new Intent(cxt, NotificationReceiver.class);
-                                int uniqueID = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID));
-                                notificationIntent.putExtra(ReminderTableContract.COLUMN_NAME_ID, uniqueID);
-                                PendingIntent pendingIntent = PendingIntent.getBroadcast(cxt, (200 + uniqueID), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-                                registeredAlarms.add(pendingIntent);
-                                int alarmTime = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME));
-                                Calendar systemCal = Calendar.getInstance();
-                                Calendar alarmCal = Calendar.getInstance();   //original code
-                                alarmCal.setTimeInMillis(alarmTime);
-                                systemCal.set(Calendar.HOUR_OF_DAY, alarmCal.get(Calendar.HOUR_OF_DAY));
-                                systemCal.set(Calendar.MINUTE, alarmCal.get(Calendar.MINUTE));
-                                systemCal.set(Calendar.SECOND, alarmCal.get(Calendar.SECOND));
-                                //alarmMgr.set(AlarmManager.RTC_WAKEUP, systemCal.getTimeInMillis(), pendingIntent);
-                                alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent);
-                            }
-                            c.close();
+                            callReminderSerivceIntent = new Intent(getActivity(),CallReminderService.class);
+                            callReminderSerivceIntent.putExtra(CallReminderService.serviceType,startReminder);
+
+                            getActivity().startService(callReminderSerivceIntent);
                         }
                     }).start();
                 }
