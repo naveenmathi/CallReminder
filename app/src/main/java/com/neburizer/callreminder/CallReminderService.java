@@ -27,8 +27,10 @@ public class CallReminderService extends Service {
 
     @Override
     public int onStartCommand(Intent intent,int flags, int startId){
+        GenericLib.showToast(this,"started");
         Log.i(LOG_TAG,"Starting service");
         String workType = intent.getExtras().getString(serviceType);
+        final Context cxt = this;
         if(workType.equals(RemindersFragment.startReminder))
         {
             NotificationCompat.Builder infoNotification = new NotificationCompat.Builder(this);
@@ -39,6 +41,13 @@ public class CallReminderService extends Service {
                     .setOngoing(true);
             NotificationManager mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(25, infoNotification.build());
+            /*AlarmManager alarmMgr;
+            alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+            Intent smpIntent = new Intent(this,SampleReceiver.class);
+            PendingIntent smpPendIntent = PendingIntent.getBroadcast(this,345,smpIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+            alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), smpPendIntent);*/
+
+
             //Context cxt = this; //service is a context
             AlarmManager alarmMgr;
             alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
@@ -60,7 +69,6 @@ public class CallReminderService extends Service {
                 //alarmMgr.set(AlarmManager.RTC_WAKEUP, systemCal.getTimeInMillis(), pendingIntent);
                 alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent);
             }
-            c.close();
         }
         return START_STICKY;
     }

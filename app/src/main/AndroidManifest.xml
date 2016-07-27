@@ -27,8 +27,8 @@
         </activity>
         <!--starting activity-->
 
-        <receiver android:name="NotificationReceiver"/>
-
+        <receiver android:name=".NotificationReceiver"/>
+        <receiver android:name=".SampleReceiver"/>
         <service android:name=".CallReminderService"
             android:exported="false"/>
     </application>

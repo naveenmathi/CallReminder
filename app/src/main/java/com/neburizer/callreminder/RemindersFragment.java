@@ -77,7 +77,7 @@ public class RemindersFragment extends Fragment{
                         public void run() {
                             callReminderSerivceIntent = new Intent(getActivity(),CallReminderService.class);
                             callReminderSerivceIntent.putExtra(CallReminderService.serviceType,startReminder);
-
+                            //callReminderSerivceIntent.putExtra()
                             getActivity().startService(callReminderSerivceIntent);
                         }
                     }).start();
