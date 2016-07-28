@@ -47,13 +47,12 @@ public class GenericLib {
      */
     public static int pushCallRemindNotification(Context cxt,int reminderId){
         //Get data for notification
-        DatabaseHelper dbh = MainActivity.rdh;
+        DatabaseHelper dbh = new DatabaseHelper(cxt);
         Cursor c = dbh.getReminderRecord(reminderId);
         c.moveToFirst();
         String msg = c.getString(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
-        Cursor contactCursor = MainActivity.rdh.getContactsRecord(msg);
+        Cursor contactCursor = dbh.getContactsRecord(msg);
         contactCursor.moveToFirst();
-
 
         //Notification Builder
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(cxt);

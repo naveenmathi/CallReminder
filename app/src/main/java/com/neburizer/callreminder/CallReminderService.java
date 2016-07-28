@@ -41,15 +41,19 @@ public class CallReminderService extends Service {
                     .setOngoing(true);
             NotificationManager mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(25, infoNotification.build());
-            /*AlarmManager alarmMgr;
+
+
+            //test sample receiver
+            AlarmManager alarmMgr;
             alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
             Intent smpIntent = new Intent(this,SampleReceiver.class);
             PendingIntent smpPendIntent = PendingIntent.getBroadcast(this,345,smpIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-            alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), smpPendIntent);*/
+            alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), smpPendIntent);
+
 
 
             //Context cxt = this; //service is a context
-            AlarmManager alarmMgr;
+            /*AlarmManager alarmMgr;
             alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
             DatabaseHelper dbh = MainActivity.rdh;
             Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
@@ -68,7 +72,7 @@ public class CallReminderService extends Service {
                 systemCal.set(Calendar.SECOND, alarmCal.get(Calendar.SECOND));
                 //alarmMgr.set(AlarmManager.RTC_WAKEUP, systemCal.getTimeInMillis(), pendingIntent);
                 alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent);
-            }
+            }*/
         }
         return START_STICKY;
     }

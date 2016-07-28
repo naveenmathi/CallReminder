@@ -16,15 +16,11 @@ public class NotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         int reminderId = intent.getIntExtra(ReminderTableContract.COLUMN_NAME_ID,0);
-        try {
-            GenericLib.pushCallRemindNotification(context,reminderId);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        GenericLib.pushCallRemindNotification(context,reminderId);
         //GenericLib.showToast(context,"toast from BR = "+reminderId);
+
+        //Repeat this in 24 hours time
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        //Intent notificationIntent = new Intent(context, NotificationReceiver.class);
-        //notificationIntent.putExtra(ReminderTableContract.COLUMN_NAME_ID, reminderId);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,(200+reminderId) , intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar sysCal = Calendar.getInstance();
         sysCal.add(Calendar.SECOND,10);
