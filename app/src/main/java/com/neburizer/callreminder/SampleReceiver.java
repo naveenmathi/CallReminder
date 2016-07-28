@@ -1,13 +1,10 @@
 package com.neburizer.callreminder;
 
 import android.app.AlarmManager;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -16,7 +13,7 @@ import java.util.Calendar;
  */
 public class SampleReceiver extends BroadcastReceiver {
     int testID = 132;
-
+    //TODO delete this receiver
     @Override
     public void onReceive(Context context, Intent intent) {
         /*//Toast.makeText(context, "test", Toast.LENGTH_SHORT).show();

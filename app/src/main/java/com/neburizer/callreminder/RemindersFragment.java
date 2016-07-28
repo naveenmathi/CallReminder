@@ -155,7 +155,7 @@ public class RemindersFragment extends Fragment{
             h.reminderTime.setText(callTime);
             String numTxt = rdbCursor.getString(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
             h.contactName.setText(numTxt);
-            h.contactIcon.setImageResource(R.drawable.ic_alarm_black_48dp);
+            //h.contactIcon.setImageResource(R.drawable.ic_alarm_black_48dp);
 
             //update with contact names
 
@@ -204,12 +204,12 @@ public class RemindersFragment extends Fragment{
                     String normNum = "";
                     String contactName = "";
                     byte[] contactImg = null;
-                    try {
+                    try {//TODO store contact image as a file and generate resource id
                         normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                         normNum = normNum.replaceAll("[^0-9]","");
                         normNum = normNum.substring(normNum.length()-10,normNum.length());
                         contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                        contactImg  = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
+                        contactImg  = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
                         MainActivity.rdh.createContactsRecord(normNum,contactName,contactImg);
                     }catch (Exception e){}
                 }while(data.moveToNext());

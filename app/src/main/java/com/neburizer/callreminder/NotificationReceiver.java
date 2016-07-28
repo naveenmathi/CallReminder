@@ -23,7 +23,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,(200+reminderId) , intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar sysCal = Calendar.getInstance();
-        sysCal.add(Calendar.SECOND,10);
+        sysCal.add(Calendar.SECOND,10);//TODO revert to 24 hour interval
         alarmManager.set(AlarmManager.RTC_WAKEUP, sysCal.getTimeInMillis(), pendingIntent);
     }
 }

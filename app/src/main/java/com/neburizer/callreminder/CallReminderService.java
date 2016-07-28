@@ -28,11 +28,12 @@ public class CallReminderService extends Service {
     @Override
     public int onStartCommand(Intent intent,int flags, int startId){
         GenericLib.showToast(this,"started");
-        Log.i(LOG_TAG,"Starting service");
+        Log.i(LOG_TAG,"Call Reminder Starting service");
         String workType = intent.getExtras().getString(serviceType);
-        final Context cxt = this;
+        final Context cxt = this; //service is a context
         if(workType.equals(RemindersFragment.startReminder))
         {
+            //Notification to prevent service from getting killed
             NotificationCompat.Builder infoNotification = new NotificationCompat.Builder(this);
             infoNotification
                     .setContentTitle("Call Reminder")
@@ -42,27 +43,23 @@ public class CallReminderService extends Service {
             NotificationManager mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(25, infoNotification.build());
 
-
             //test sample receiver
-            AlarmManager alarmMgr;
+            /*AlarmManager alarmMgr;
             alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
             Intent smpIntent = new Intent(this,SampleReceiver.class);
             PendingIntent smpPendIntent = PendingIntent.getBroadcast(this,345,smpIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-            alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), smpPendIntent);
+            alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), smpPendIntent);*/
 
-
-
-            //Context cxt = this; //service is a context
-            /*AlarmManager alarmMgr;
+            AlarmManager alarmMgr;
             alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-            DatabaseHelper dbh = MainActivity.rdh;
+            DatabaseHelper dbh = new DatabaseHelper(cxt);
             Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
             while(c.moveToNext()) {
                 Intent notificationIntent = new Intent(this, NotificationReceiver.class);
                 int uniqueID = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_ID));
                 notificationIntent.putExtra(ReminderTableContract.COLUMN_NAME_ID, uniqueID);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(this, (200 + uniqueID), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-                //RemindersFragment.registeredAlarms.add(pendingIntent);
+                //RemindersFragment.registeredAlarms.add(pendingIntent);    TODO add alarms to list
                 int alarmTime = c.getInt(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME));
                 Calendar systemCal = Calendar.getInstance();
                 Calendar alarmCal = Calendar.getInstance();   //original code
@@ -70,9 +67,9 @@ public class CallReminderService extends Service {
                 systemCal.set(Calendar.HOUR_OF_DAY, alarmCal.get(Calendar.HOUR_OF_DAY));
                 systemCal.set(Calendar.MINUTE, alarmCal.get(Calendar.MINUTE));
                 systemCal.set(Calendar.SECOND, alarmCal.get(Calendar.SECOND));
-                //alarmMgr.set(AlarmManager.RTC_WAKEUP, systemCal.getTimeInMillis(), pendingIntent);
+                //alarmMgr.set(AlarmManager.RTC_WAKEUP, systemCal.getTimeInMillis(), pendingIntent); TODO revert normal alarm time
                 alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent);
-            }*/
+            }
         }
         return START_STICKY;
     }

@@ -174,7 +174,6 @@ public class MainActivity extends ActionBarActivity{
         private LayoutInflater inflater = null;
 
         public NavigationBarAdapter(Context c, String[] txt_list, TypedArray img_list) {
-            // TODO Auto-generated constructor stub
             this.txt_list = txt_list;
             imageId = img_list;
             inflater = (LayoutInflater) c.

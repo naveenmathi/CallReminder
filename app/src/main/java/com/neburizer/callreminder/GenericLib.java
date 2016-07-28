@@ -1,11 +1,15 @@
 package com.neburizer.callreminder;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.CallLog;
 import android.support.v4.app.NotificationCompat;
@@ -54,16 +58,18 @@ public class GenericLib {
         Cursor contactCursor = dbh.getContactsRecord(msg);
         contactCursor.moveToFirst();
 
-        //Notification Builder
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(cxt);
-        //mBuilder.setSmallIcon(contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES)));
-        mBuilder.setSmallIcon(R.drawable.ic_alarm_black_48dp);
-        mBuilder.setContentTitle("title tst");
-        mBuilder.setContentText(msg);
-        //mBuilder.setContentText("msg");
-        //GenericLib.showToast(cxt,msg);
+        //Notification Builder Data
+        byte[] b = contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES));
+
+        Notification mBuilder = new NotificationCompat.Builder(cxt)
+                //.setSmallIcon(image)
+                .setContentTitle("title tst")
+                .setContentText(msg).build();
+
+
+        //call notify using notification manager
         NotificationManager mNotificationManager = (NotificationManager) cxt.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(notificationID, mBuilder.build());
+        mNotificationManager.notify(notificationID, mBuilder);
         notificationID++;
         return (notificationID-1);
     }
