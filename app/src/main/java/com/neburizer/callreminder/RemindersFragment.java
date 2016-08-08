@@ -11,11 +11,13 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +47,8 @@ public class RemindersFragment extends Fragment{
     static ArrayList<PendingIntent> registeredAlarms;
     Intent callReminderSerivceIntent;
     public static String startReminder = "startReminder";
+    ImageView tempimgview;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +60,10 @@ public class RemindersFragment extends Fragment{
 
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
+
+
         super.onViewCreated(view, savedInstanceState);
+        tempimgview = (ImageView) view.findViewById(R.id.tempImageView);//TODO delete this
 
         //set reminder list adapter
         reminderListView = (ListView) view.findViewById(R.id.reminderListView);
@@ -163,14 +171,21 @@ public class RemindersFragment extends Fragment{
                 getLoaderManager().initLoader(0, null, this);
             }
 
-            Cursor contactCursor = MainActivity.rdh.getContactsRecord(numTxt);
+
             try {
+                h.contactIcon.setImageResource(R.drawable.ic_alarm_black_48dp);
+                Cursor contactCursor = MainActivity.rdh.getContactsRecord(numTxt);
                 contactCursor.moveToFirst();
                 h.contactName.setText(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_NAME)));
                 byte temp[] = contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES));
-                Bitmap conImg = BitmapFactory.decodeByteArray(temp, 0, temp.length);
-                h.contactIcon.setImageBitmap(conImg);
-            }catch (Exception c){}
+                ByteArrayInputStream imageStream = new ByteArrayInputStream(temp);
+                Bitmap theImage = BitmapFactory.decodeStream(imageStream);
+                h.contactIcon.setImageBitmap(theImage);
+
+
+            }catch (Exception c){
+
+            }
 
             return rowView;
         }
@@ -209,10 +224,14 @@ public class RemindersFragment extends Fragment{
                         normNum = normNum.replaceAll("[^0-9]","");
                         normNum = normNum.substring(normNum.length()-10,normNum.length());
                         contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                        contactImg  = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
+                        contactImg = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
                         MainActivity.rdh.createContactsRecord(normNum,contactName,contactImg);
                     }catch (Exception e){}
                 }while(data.moveToNext());
+                data.moveToFirst();
+                /*String tmpimg  = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
+                tempimgview.setImageURI(Uri.parse(tmpimg));
+                //this.notifyDataSetChanged();*/
             }
         }
 

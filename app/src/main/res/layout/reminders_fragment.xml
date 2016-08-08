@@ -18,6 +18,10 @@
         android:text="Stop reminder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+    <ImageView
+        android:id="@+id/tempImageView"
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
     <ListView
         android:id="@+id/reminderListView"
         android:layout_width="match_parent"
