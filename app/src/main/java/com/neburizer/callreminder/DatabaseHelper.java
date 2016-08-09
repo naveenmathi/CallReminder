@@ -94,14 +94,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * specific function to contacts table to create new record
      * @param conNum - phone number of contact
      * @param conName - display name of contact
-     * @param conImgResId - display image's byte array of contact in string format
+     * @param conPhoto - display image's photo file id
      */
-    public void createContactsRecord(String conNum, String conName, byte[] conImgResId){
+    public void createContactsRecord(String conNum, String conName, byte[] conPhoto){
         db = this.getReadableDatabase();
         ContentValues cValues = new ContentValues();
         cValues.put(ContactsTableContract.COLUMN_CONTACT_NUMBER, conNum);
         cValues.put(ContactsTableContract.COLUMN_CONTACT_NAME, conName);
-        cValues.put(ContactsTableContract.COLUMN_CONTACT_IMG_RES, conImgResId);
+        cValues.put(ContactsTableContract.COLUMN_CONTACT_IMG_RES, conPhoto);
         db.insert(ContactsTableContract.TABLE_NAME, null, cValues);
     }
     public Cursor getReminderRecord(int id)

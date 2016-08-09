@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.app.PendingIntent;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -11,13 +12,10 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,12 +26,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.ByteArrayInputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
+//**************************************Reminders Fragment Class*******************************//
 
 /**
  * Created by nm3 on 2/4/2016.
@@ -41,13 +36,12 @@ import java.util.Date;
 public class RemindersFragment extends Fragment{
 
 
-    //**************************************Default fragment functions*******************************//
     ListView reminderListView;
-    String bundleArgNumber  =   "phNumber";
     static ArrayList<PendingIntent> registeredAlarms;
     Intent callReminderSerivceIntent;
     public static String startReminder = "startReminder";
     ImageView tempimgview;
+    Cursor contactsCursor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,19 +54,14 @@ public class RemindersFragment extends Fragment{
 
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
-
-
         super.onViewCreated(view, savedInstanceState);
         tempimgview = (ImageView) view.findViewById(R.id.tempImageView);//TODO delete this
-
         //set reminder list adapter
         reminderListView = (ListView) view.findViewById(R.id.reminderListView);
         reminderListView.setAdapter(new ReminderListItemAdapter(view.getContext()));
-
         //set pendingAlarmIntents array
         registeredAlarms = new ArrayList<PendingIntent>();
 
-        //**************************************Start Reminder - button function*******************************//
         Button btnStartReminder = (Button)view.findViewById(R.id.btnStartReminder);
         /**
          * This function starts a set of reminders (repeating alarm managers)
@@ -92,7 +81,6 @@ public class RemindersFragment extends Fragment{
                 }
         });
 
-        //**************************************Stop Reminder - button function*******************************//
         Button btnStopReminder = (Button)view.findViewById(R.id.btnStopReminder);
         /**
          * This function starts a set of reminders (repeating alarm managers)
@@ -116,7 +104,7 @@ public class RemindersFragment extends Fragment{
     }
 
 
-    //**************************************ReminderList adapter class*******************************//
+//**************************ReminderList adapter class with Loader Manager*****************************//
     /**
      * Loader manager is used for background loading of contacts
      */
@@ -125,14 +113,13 @@ public class RemindersFragment extends Fragment{
         Context cxt;
         DatabaseHelper reminderDatabaseHelper=null;
 
-
         //constructor
         public ReminderListItemAdapter(Context c){
             cxt = c;
             reminderDatabaseHelper = new DatabaseHelper(cxt);
+            getLoaderManager().initLoader(0, null, this);
         }
 
-        //***********************************Base Adapter functions*****************************//
         @Override
         public int getCount() {
             return (int) reminderDatabaseHelper.getRowCount(ReminderTableContract.TABLE_NAME);
@@ -148,45 +135,48 @@ public class RemindersFragment extends Fragment{
             return position;
         }
 
+        /**
+         * returns the view of each list item in adapter
+         */
         public View getView(int position, View convertView, ViewGroup parent) {
+            //initialize a holder for list view objects
             Holder h = new Holder();
             View rowView;
             LayoutInflater inflater = (LayoutInflater) cxt.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             rowView = inflater.inflate(R.layout.reminder_list_item, null);
+
+            //get list objects from xml
             h.reminderTime = (TextView) rowView.findViewById(R.id.reminderListItemTime);
             h.contactName = (TextView) rowView.findViewById(R.id.reminderListItemContactName);
             h.contactIcon = (ImageView) rowView.findViewById(R.id.reminderListItemContactImage);
+
+            //get reminder from DB
             Cursor rdbCursor = reminderDatabaseHelper.getAllRecords(ReminderTableContract.TABLE_NAME);
             rdbCursor.moveToPosition(position);
             String callTime = "Next Call Time: " +
                     GenericLib.longToTime(rdbCursor.getInt(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_REM_TIME)));
+
+            //set values for list view objects
             h.reminderTime.setText(callTime);
             String numTxt = rdbCursor.getString(rdbCursor.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));
             h.contactName.setText(numTxt);
-            //h.contactIcon.setImageResource(R.drawable.ic_alarm_black_48dp);
+            h.contactIcon.setImageResource(R.drawable.ic_alarm_black_48dp);
 
-            //update with contact names
+            //if contacts name and photo are loaded replace with them
+            if(reminderDatabaseHelper.getRowCount(ContactsTableContract.TABLE_NAME)>0)
+            {
+                try {
+                    Cursor cTemp = reminderDatabaseHelper.getContactsRecord(numTxt);
+                    cTemp.moveToFirst();
+                    String cName = cTemp.getString(cTemp.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_NAME));
+                    h.contactName.setText(cName);
+                    byte[] contImg = cTemp.getBlob(cTemp.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES));
 
-            if(MainActivity.rdh.getRowCount(ContactsTableContract.TABLE_NAME) < 1) {
-                getLoaderManager().initLoader(0, null, this);
+                    byte[] outImage=contImg;
+                    Bitmap theImage = BitmapFactory.decodeByteArray(contImg,0,contImg.length);
+                    h.contactIcon.setImageBitmap(theImage);
+                }catch(Exception e){}
             }
-
-
-            try {
-                h.contactIcon.setImageResource(R.drawable.ic_alarm_black_48dp);
-                Cursor contactCursor = MainActivity.rdh.getContactsRecord(numTxt);
-                contactCursor.moveToFirst();
-                h.contactName.setText(contactCursor.getString(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_NAME)));
-                byte temp[] = contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES));
-                ByteArrayInputStream imageStream = new ByteArrayInputStream(temp);
-                Bitmap theImage = BitmapFactory.decodeStream(imageStream);
-                h.contactIcon.setImageBitmap(theImage);
-
-
-            }catch (Exception c){
-
-            }
-
             return rowView;
         }
 
@@ -204,15 +194,14 @@ public class RemindersFragment extends Fragment{
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             //get all contacts
-            return new CursorLoader(getActivity(), ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
+            //TODO this is wrong, no numbers are generated
+            return new CursorLoader(getActivity(), ContactsContract.Contacts.CONTENT_URI,null,null,null,null);
         }
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             //store in database contactsTable
-
-            MainActivity.rdh.emptyDb(ContactsTableContract.TABLE_NAME);
-
+            reminderDatabaseHelper.emptyDb(ContactsTableContract.TABLE_NAME);
             if(!(data == null)){
                 data.moveToFirst();
                 do {
@@ -220,18 +209,18 @@ public class RemindersFragment extends Fragment{
                     String contactName = "";
                     byte[] contactImg = null;
                     try {//TODO store contact image as a file and generate resource id
+                        //TODO This is returning null always
                         normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                         normNum = normNum.replaceAll("[^0-9]","");
                         normNum = normNum.substring(normNum.length()-10,normNum.length());
                         contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                         contactImg = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
-                        MainActivity.rdh.createContactsRecord(normNum,contactName,contactImg);
+                        reminderDatabaseHelper.createContactsRecord(normNum,contactName,contactImg);
                     }catch (Exception e){}
                 }while(data.moveToNext());
-                data.moveToFirst();
-                /*String tmpimg  = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
-                tempimgview.setImageURI(Uri.parse(tmpimg));
-                //this.notifyDataSetChanged();*/
+
+                //refresh the custom adapter list view
+                this.notifyDataSetChanged();
             }
         }
 
