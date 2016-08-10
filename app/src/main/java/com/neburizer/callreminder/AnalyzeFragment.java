@@ -64,6 +64,9 @@ public class AnalyzeFragment extends Fragment {
         btnTemp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                reminderDbHelper.emptyDb(ContactsTableContract.TABLE_NAME);
+                reminderDbHelper.emptyDb(ReminderTableContract.TABLE_NAME);
+
                 /*AssetManager asm = cxt.getAssets();
                 try {
                     InputStream ins = asm.open("testContact.jpg");
@@ -82,7 +85,11 @@ public class AnalyzeFragment extends Fragment {
                     ost = null;
 
                 }catch (Exception e){}*/
-                GenericLib.insertCallLogsFromXml(cxt);
+
+
+                //GenericLib.insertCallLogsFromXml(cxt);
+
+
                 /*Date d = new Date();
                 reminderDbHelper.insertRecord("9789827780",d.getTime());
                 GenericLib.showToast(cxt, "inserting dummy");
