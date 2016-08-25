@@ -36,15 +36,15 @@ import java.util.List;
 /**
  * Created by nm3 on 2/4/2016.
  */
-public class RemindersFragment extends Fragment {
+public class RemindersFragment extends Fragment{
     ListView reminderListView;
     static ArrayList<PendingIntent> registeredAlarms;
     Intent callReminderSerivceIntent;
     public static String startReminder = "startReminder";
     ImageView tempimgview;
-    Cursor contactsCursor;
     DatabaseHelper reminderDatabaseHelper = null;
     ReminderListItemAdapter rli = null;
+    Context fragmentContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,6 @@ public class RemindersFragment extends Fragment {
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tempimgview = (ImageView) view.findViewById(R.id.tempImageView);//TODO delete this
-        reminderDatabaseHelper = new DatabaseHelper(view.getContext());
         //set reminder list adapter
         reminderListView = (ListView) view.findViewById(R.id.reminderListView);
         rli = new ReminderListItemAdapter(view.getContext());
@@ -67,6 +66,10 @@ public class RemindersFragment extends Fragment {
 
         //set pendingAlarmIntents array
         registeredAlarms = new ArrayList<PendingIntent>();
+
+        //start contacts loader
+        fragmentContext = view.getContext();
+        getLoaderManager().initLoader(5,null,contactsLoader);
 
         //BUTTONS
         Button btnStartReminder = (Button) view.findViewById(R.id.btnStartReminder);
@@ -110,11 +113,10 @@ public class RemindersFragment extends Fragment {
             }
         });
 
-        //refresh with contact details
-        loadContactsClass lcc1 = new loadContactsClass(view.getContext());
-        lcc1.startLoading();
 
     }
+
+
 
     //**************************ReminderList adapter class*****************************//
 
@@ -125,7 +127,10 @@ public class RemindersFragment extends Fragment {
         //constructor
         public ReminderListItemAdapter(Context c) {
             cxt = c;
+            reminderDatabaseHelper = new DatabaseHelper(c);
         }
+
+
 
         @Override
         public int getCount() {
@@ -183,7 +188,9 @@ public class RemindersFragment extends Fragment {
                 }
             }
             return rowView;
+
         }
+
 
         /**
          * Holder class for reminder item
@@ -195,98 +202,25 @@ public class RemindersFragment extends Fragment {
         }
     }
 
-    public static class loadContactsClass extends AsyncTaskLoader<Cursor>{
 
-        public loadContactsClass(Context context) {
-            super(context);
+    //***********************************Loader Manager functions*****************************//
+    private LoaderManager.LoaderCallbacks<Cursor> contactsLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            return new ContactsLoaderAsync(fragmentContext);
         }
 
         @Override
-        public Cursor loadInBackground() {
-            String[] projectionCursor = {
-                    ContactsContract.CommonDataKinds.Phone.NUMBER,
-                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                    ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI
-            };
-            Cursor data = getContext().getContentResolver().query(ContactsContract.Data.CONTENT_URI,projectionCursor,null,null,null);
-            DatabaseHelper reminderDatabaseHelper = new DatabaseHelper(getContext());
-            //store in database contactsTable
-            reminderDatabaseHelper.emptyDb(ContactsTableContract.TABLE_NAME);
-            if (!(data == null)) {
-                data.moveToFirst();
-                do {
-                    String normNum = "";
-                    String contactName = "";
-                    byte[] contactImg = null;
-                    try {
-                        //TODO store contact image as a file and generate resource id
-                        //TODO This is returning null always
-                        normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-                        normNum = normNum.replaceAll("[^0-9]", "");
-                        normNum = normNum.substring(normNum.length() - 10, normNum.length());
-                        contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                        contactImg = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
-                        reminderDatabaseHelper.createContactsRecord(normNum, contactName, contactImg);
-                    } catch (Exception e) {}
-                } while (data.moveToNext());
-            }
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-            return null;
         }
 
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
 
-    }
+        }
+    };
 
 }
 
 
-//***********************************Loader Manager functions*****************************//
-/*
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        //get all contacts
-        //TODO this is wrong, no numbers are generated
-        String[] projectionCursor = {
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI
-        };
-
-        CursorLoader cldr = new CursorLoader(getActivity(), ContactsContract.Data.CONTENT_URI,projectionCursor,null,null,null);
-        return cldr;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
-        //store in database contactsTable
-        reminderDatabaseHelper.emptyDb(ContactsTableContract.TABLE_NAME);
-        if (!(data == null)) {
-            data.moveToFirst();
-            do {
-                String normNum = "";
-                String contactName = "";
-                byte[] contactImg = null;
-                try {
-                    //TODO store contact image as a file and generate resource id
-                    //TODO This is returning null always
-                    normNum = (data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-                    normNum = normNum.replaceAll("[^0-9]", "");
-                    normNum = normNum.substring(normNum.length() - 10, normNum.length());
-                    contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    contactImg = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
-                    reminderDatabaseHelper.createContactsRecord(normNum, contactName, contactImg);
-                } catch (Exception e) {
-                }
-            } while (data.moveToNext());
-        }
-
-        //refresh the custom adapter list view
-        rli.notifyDataSetChanged();
-
-    }
-
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }*/
