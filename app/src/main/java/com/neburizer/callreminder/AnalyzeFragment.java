@@ -45,7 +45,7 @@ public class AnalyzeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         cxt = view.getContext();
-        reminderDbHelper = new DatabaseHelper(cxt);
+        reminderDbHelper = DatabaseHelper.getInstance(cxt);
         setupHandler();
         opText = (TextView) view.findViewById(R.id.opText);
         Button btnAnalyze = (Button) view.findViewById(R.id.btn_analyze);

@@ -89,7 +89,7 @@ public class MainActivity extends ActionBarActivity{
 
     private void setupVariables() {
         cxt = getApplicationContext();
-        rdh = new DatabaseHelper(this);
+        rdh = DatabaseHelper.getInstance(cxt);
         //initialize activity elements to variables
         /*skipDaysPicker = (NumberPicker) findViewById(R.id.skipDaysPicker);
         skipDaysPicker.setMinValue(1);

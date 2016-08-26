@@ -51,7 +51,7 @@ public class GenericLib {
      */
     public static int pushCallRemindNotification(Context cxt,int reminderId){
         //Get data for notification
-        DatabaseHelper dbh = new DatabaseHelper(cxt);
+        DatabaseHelper dbh = DatabaseHelper.getInstance(cxt);
         Cursor c = dbh.getReminderRecord(reminderId);
         c.moveToFirst();
         String msg = c.getString(c.getColumnIndex(ReminderTableContract.COLUMN_NAME_PH_NO));

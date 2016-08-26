@@ -52,7 +52,7 @@ public class CallReminderService extends Service {
 
             AlarmManager alarmMgr;
             alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-            DatabaseHelper dbh = new DatabaseHelper(cxt);
+            DatabaseHelper dbh = DatabaseHelper.getInstance(cxt);
             Cursor c = dbh.getAllRecords(ReminderTableContract.TABLE_NAME);
             while(c.moveToNext()) {
                 Intent notificationIntent = new Intent(this, NotificationReceiver.class);

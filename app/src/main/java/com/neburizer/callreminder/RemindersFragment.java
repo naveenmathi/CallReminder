@@ -4,19 +4,13 @@ import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.app.PendingIntent;
-import android.content.AsyncTaskLoader;
-import android.content.ContentUris;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Looper;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,9 +21,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 //**************************************Reminders Fragment Class*******************************//
 
@@ -127,7 +119,7 @@ public class RemindersFragment extends Fragment{
         //constructor
         public ReminderListItemAdapter(Context c) {
             cxt = c;
-            reminderDatabaseHelper = new DatabaseHelper(c);
+            reminderDatabaseHelper = DatabaseHelper.getInstance(c);
         }
 
 
@@ -212,7 +204,7 @@ public class RemindersFragment extends Fragment{
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+            rli.notifyDataSetChanged();
         }
 
         @Override

@@ -37,7 +37,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_DELETE_ENTRIES1 = "DROP TABLE IF EXISTS " + ReminderTableContract.TABLE_NAME;
     private static final String SQL_DELETE_ENTRIES2 = "DROP TABLE IF EXISTS " + ContactsTableContract.TABLE_NAME;
 
-    SQLiteDatabase db;
+    //Thread handling for this database helper --- SINGLETON METHOD
+    private static DatabaseHelper sInstance;
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -69,8 +76,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @return
      */
     public long getRowCount(String tableName) {
-        db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         long cnt  = DatabaseUtils.queryNumEntries(db, tableName);
+        //db.close();
         return cnt;
     }
 
@@ -80,7 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param rTime
      */
     public void createReminderRecord(String phNo, long rTime) {
-        db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cValues = new ContentValues();
         long iDb=getRowCount(ReminderTableContract.TABLE_NAME);
         cValues.put(ReminderTableContract.COLUMN_NAME_ID, ++iDb);
@@ -88,6 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cValues.put(ReminderTableContract.COLUMN_NAME_REM_TIME, String.valueOf(rTime));
         //cValues.put(ReminderTableContract.COLUMN_NAME_IMG, );
         db.insert(ReminderTableContract.TABLE_NAME, null, cValues);
+        //db.close();
     }
 
     /**
@@ -97,43 +106,51 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param conPhoto - display image's photo file id
      */
     public void createContactsRecord(String conNum, String conName, byte[] conPhoto){
-        db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         ContentValues cValues = new ContentValues();
         cValues.put(ContactsTableContract.COLUMN_CONTACT_NUMBER, conNum);
         cValues.put(ContactsTableContract.COLUMN_CONTACT_NAME, conName);
         cValues.put(ContactsTableContract.COLUMN_CONTACT_IMG_RES, conPhoto);
-        db.insert(ContactsTableContract.TABLE_NAME, null, cValues);
+        db.insertOrThrow(ContactsTableContract.TABLE_NAME, null, cValues);
+        //db.close();
     }
     public Cursor getReminderRecord(int id)
     {
-        db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         String sql = "select * from "+
                 ReminderTableContract.TABLE_NAME+
                 " where "+ReminderTableContract.COLUMN_NAME_ID+"='"+id+"';";
-        return db.rawQuery(sql,null);
+        Cursor resultCursor = db.rawQuery(sql,null);
+        //db.close();
+        return resultCursor;
     }
 
     public Cursor getContactsRecord(String conNum)
     {
-        db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         String sql = "select * from "+
                 ContactsTableContract.TABLE_NAME+
                 " where "+ContactsTableContract.COLUMN_CONTACT_NUMBER+"="+conNum+";";
-        return db.rawQuery(sql,null);
+        Cursor resultCursor = db.rawQuery(sql,null);
+        //db.close();
+        return resultCursor;
     }
 
     public Cursor getAllRecords(String tableName)
     {
-        db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         String sql = "select * from " + tableName + ";";
-        return db.rawQuery(sql,null);
+        Cursor resultCursor = db.rawQuery(sql,null);
+        //db.close();
+        return resultCursor;
     }
 
     public boolean emptyDb(String tableName)
     {
         try {
-            db = this.getWritableDatabase();
+            SQLiteDatabase db = this.getWritableDatabase();
             db.delete(tableName, null, null);
+            //db.close();
             return true;
         }catch(Exception e) {
             return false;

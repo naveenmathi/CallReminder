@@ -30,7 +30,7 @@ public class AnalyzeCallLogsThread extends Thread{
     public AnalyzeCallLogsThread(Context c)
     {
         cxt = c;
-        reminderDbHelper = MainActivity.rdh;
+        reminderDbHelper = DatabaseHelper.getInstance(c);
     }
     @Override
     public void run() {
