@@ -1,11 +1,15 @@
 package com.neburizer.callreminder;
 
 import android.content.AsyncTaskLoader;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
+
+import java.io.ByteArrayInputStream;
 
 /**
  * Created by nm3 on 8/25/2016.
@@ -26,9 +30,9 @@ public class ContactsLoaderAsync extends AsyncTaskLoader<Cursor>
     public Cursor loadInBackground() {
         //projection for contacts
         String[] projectionCursor = {
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
                 ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
         };
 
         //Main query for contacts
@@ -49,10 +53,23 @@ public class ContactsLoaderAsync extends AsyncTaskLoader<Cursor>
                     normNum = normNum.replaceAll("[^0-9]", "");
                     normNum = normNum.substring(normNum.length() - 10, normNum.length());
                     contactName = data.getString(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    contactImg = data.getBlob(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI));
+                    int contactId = data.getInt(data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+                    Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
+                    Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
+                    Cursor tmpPhCursor = getContext().getContentResolver().query(photoUri,
+                            new String[] {ContactsContract.Contacts.Photo.PHOTO}, null, null, null);
+                    if (tmpPhCursor != null) {
+                        if (tmpPhCursor.moveToFirst()) {
+                            contactImg = tmpPhCursor.getBlob(0);
+                        }
+                        tmpPhCursor.close();
+                    }
+
                     reminderDatabaseHelper.createContactsRecord(normNum, contactName, contactImg);
                 }
-                catch (Exception e) {Log.v("sqlConstraintExcp",normNum);}
+                catch (Exception e) {
+                    Log.e("CallReminder","InsertContactErr",e);
+                }
             } while (data.moveToNext());
         }
         data.close();
