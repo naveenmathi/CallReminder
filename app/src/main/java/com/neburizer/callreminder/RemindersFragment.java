@@ -111,7 +111,6 @@ public class RemindersFragment extends Fragment{
 
 
     //**************************ReminderList adapter class*****************************//
-
     private class ReminderListItemAdapter extends BaseAdapter {
 
         Context cxt;
@@ -175,6 +174,7 @@ public class RemindersFragment extends Fragment{
                     h.contactName.setText(cName);
                     byte[] contImg = cTemp.getBlob(cTemp.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES));
                     Bitmap theImage = BitmapFactory.decodeByteArray(contImg, 0, contImg.length);
+                    theImage = GenericLib.getCroppedImage(theImage);
                     h.contactIcon.setImageBitmap(theImage);
                 } catch (Exception e) {
                 }
@@ -182,7 +182,6 @@ public class RemindersFragment extends Fragment{
             return rowView;
 
         }
-
 
         /**
          * Holder class for reminder item
@@ -195,7 +194,7 @@ public class RemindersFragment extends Fragment{
     }
 
 
-    //***********************************Loader Manager functions*****************************//
+    //******************************Contact Loader Manager***********************************//
     private LoaderManager.LoaderCallbacks<Cursor> contactsLoader = new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {

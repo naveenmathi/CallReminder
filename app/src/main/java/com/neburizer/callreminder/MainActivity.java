@@ -109,6 +109,9 @@ public class MainActivity extends ActionBarActivity{
         sDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         sDrawerList = (ListView) findViewById(R.id.left_drawer);
         sDrawerList.setAdapter(new NavigationBarAdapter(this,sTitles,sImages));
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.animator.fade_in, 0, 0, 0);
+        ft.replace(R.id.content_frame,new RemindersFragment()).commit();
         sDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         sDrawerToggle = new ActionBarDrawerToggle(
                 this,                  //* host Activity *//*

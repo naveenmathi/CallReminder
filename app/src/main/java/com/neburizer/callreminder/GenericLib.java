@@ -8,6 +8,12 @@ import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -60,9 +66,9 @@ public class GenericLib {
 
         //Notification Builder Data
         byte[] b = contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES));
-
+        Bitmap image = BitmapFactory.decodeByteArray(b, 0, b.length);
         Notification mBuilder = new NotificationCompat.Builder(cxt)
-                //.setSmallIcon(image)
+                .setSmallIcon(R.drawable.ic_alarm_black_48dp)
                 .setContentTitle("title tst")
                 .setContentText(msg).build();
 
@@ -191,5 +197,30 @@ public class GenericLib {
      */
     public static long roundTime(long timeCalled_1) {
         return timeCalled_1 % 86400000; //1 day in milli seconds
+    }
+
+    /**
+     * Return a circular bitmap of given image
+     * @param inputImg
+     * @return
+     */
+    public static Bitmap getCroppedImage(Bitmap inputImg) {
+        int xWidth = inputImg.getWidth();
+        int yHeight = inputImg.getHeight();
+        Bitmap output = Bitmap.createBitmap(xWidth,yHeight, Bitmap.Config.ARGB_8888);
+
+        //To draw anythign, we need canvas(host draw calls), Paint(store colour informations),
+        //Shape(rect,etc),Bitmap(to store pixels)
+        Canvas canvas = new Canvas(output);
+        Paint paint = new Paint();
+        Rect rect = new Rect(0,0,xWidth,yHeight);
+
+        //draw a circle first, then draw the image with SRC_IN mode -> draws only intersecting area
+        paint.setAntiAlias(true);
+        paint.setColor(Color.BLACK);
+        canvas.drawCircle(xWidth/2,yHeight/2,xWidth/2,paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(inputImg,rect,rect,paint);
+        return output;
     }
 }
