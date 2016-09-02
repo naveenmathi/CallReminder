@@ -66,7 +66,9 @@ public class GenericLib {
 
         //Notification Builder Data
         byte[] b = contactCursor.getBlob(contactCursor.getColumnIndex(ContactsTableContract.COLUMN_CONTACT_IMG_RES));
-        Bitmap image = BitmapFactory.decodeByteArray(b, 0, b.length);
+        if(b!=null){
+            Bitmap image = BitmapFactory.decodeByteArray(b, 0, b.length);
+        }
         Notification mBuilder = new NotificationCompat.Builder(cxt)
                 .setSmallIcon(R.drawable.ic_alarm_black_48dp)
                 .setContentTitle("title tst")

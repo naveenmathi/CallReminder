@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 //**************************************Reminders Fragment Class*******************************//
 
@@ -32,7 +33,6 @@ public class RemindersFragment extends Fragment{
     ListView reminderListView;
     static ArrayList<PendingIntent> registeredAlarms;
     Intent callReminderSerivceIntent;
-    public static String startReminder = "startReminder";
     ImageView tempimgview;
     DatabaseHelper reminderDatabaseHelper = null;
     ReminderListItemAdapter rli = null;
@@ -65,7 +65,6 @@ public class RemindersFragment extends Fragment{
 
         //BUTTONS
         Button btnStartReminder = (Button) view.findViewById(R.id.btnStartReminder);
-        Button btnStopReminder = (Button) view.findViewById(R.id.btnStopReminder);
 
         /**
          * This function starts a set of reminders (repeating alarm managers)
@@ -77,8 +76,7 @@ public class RemindersFragment extends Fragment{
                     @Override
                     public void run() {
                         callReminderSerivceIntent = new Intent(getActivity(), CallReminderService.class);
-                        callReminderSerivceIntent.putExtra(CallReminderService.serviceType, startReminder);
-                        //callReminderSerivceIntent.putExtra()
+                        callReminderSerivceIntent.putExtra(CallReminderService.SERVICE_TYPE, CallReminderService.START_SERVICE);
                         getActivity().startService(callReminderSerivceIntent);
                     }
                 }).start();
@@ -86,24 +84,7 @@ public class RemindersFragment extends Fragment{
         });
 
 
-        /**
-         * This function starts a set of reminders (repeating alarm managers)
-         */
-        btnStopReminder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (registeredAlarms.size() > 0) {
-                    Context cxt = view.getContext();
-                    AlarmManager alarmMgr;
-                    PendingIntent pendingIntent;
-                    alarmMgr = (AlarmManager) cxt.getSystemService(Context.ALARM_SERVICE);
-                    for (PendingIntent p : registeredAlarms) {
-                        alarmMgr.cancel(p);
-                    }
-                    registeredAlarms = new ArrayList<PendingIntent>();
-                }
-            }
-        });
+
 
 
     }
@@ -211,6 +192,7 @@ public class RemindersFragment extends Fragment{
 
         }
     };
+
 
 }
 
